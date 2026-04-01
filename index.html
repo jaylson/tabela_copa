@@ -211,11 +211,26 @@
       border: 1px solid #e2e8f0; border-left-width: 4px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
       transition: box-shadow 0.2s, transform 0.2s;
+      position: relative; overflow: hidden;
     }
     .cal-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); transform: translateY(-1px); }
     .cal-card.brazil { box-shadow: 0 0 0 2px rgba(22,163,74,0.3); }
     .cal-score { font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; color: #f59e0b; }
     .cal-vs { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; color: #94a3b8; }
+    .cal-flag-bg {
+      position: absolute; top: 0; height: 100%; width: 44%; /* ~half width with slight overlap for visual balance */
+      object-fit: cover; pointer-events: none; opacity: 0.07;
+      filter: saturate(1.4);
+    }
+    .cal-flag-bg.home { left: 0; object-position: center; }
+    .cal-flag-bg.away { right: 0; object-position: center; }
+    .cal-content { position: relative; z-index: 1; }
+
+    /* Team crest image */
+    .crest-img {
+      height: 22px; width: auto; border-radius: 2px;
+      vertical-align: middle; object-fit: contain;
+    }
 
     /* Bracket */
     .b-match {
@@ -373,6 +388,37 @@ const GAMES = (() => {
 })();
 
 // ============================================================
+// FLAG / CREST HELPERS
+// ============================================================
+const FLAG_CODES = {
+  "México":"mx","África do Sul":"za","Coreia do Sul":"kr","Rep. Tcheca":"cz",
+  "Canadá":"ca","Bósnia":"ba","Catar":"qa","Suíça":"ch",
+  "Brasil":"br","Marrocos":"ma","Haiti":"ht","Escócia":"gb-sct",
+  "EUA":"us","Paraguai":"py","Austrália":"au","Turquia":"tr",
+  "Alemanha":"de","Curaçao":"cw","Costa do Marfim":"ci","Equador":"ec",
+  "Holanda":"nl","Japão":"jp","Suécia":"se","Tunísia":"tn",
+  "Bélgica":"be","Egito":"eg","Irã":"ir","Nova Zelândia":"nz",
+  "Espanha":"es","Cabo Verde":"cv","Arábia Saudita":"sa","Uruguai":"uy",
+  "França":"fr","Senegal":"sn","Iraque":"iq","Noruega":"no",
+  "Argentina":"ar","Argélia":"dz","Áustria":"at","Jordânia":"jo",
+  "Portugal":"pt","RD Congo":"cd","Uzbequistão":"uz","Colômbia":"co",
+  "Inglaterra":"gb-eng","Croácia":"hr","Gana":"gh","Panamá":"pa"
+};
+
+function getFlagUrl(name, width) {
+  const code = FLAG_CODES[name];
+  return code ? `https://flagcdn.com/w${width || 40}/${code}.png` : "";
+}
+
+function crestImg(team, size) {
+  const url = getFlagUrl(team.name, 40);
+  const h = size || 22;
+  if (!url) return team.flag;
+  const escaped = team.flag.replace(/'/g, "\\'");
+  return `<img src="${url}" alt="${team.name}" class="crest-img" style="height:${h}px" onerror="this.replaceWith(document.createTextNode('${escaped}'))">`;
+}
+
+// ============================================================
 // APPLICATION STATE
 // ============================================================
 const state = {
@@ -524,7 +570,7 @@ function renderGroups() {
       const sg = t.sg > 0 ? "+" + t.sg : t.sg;
       return sep + `<tr>`
         + `<td><span style="font-size:.65rem;color:#94a3b8;font-weight:700">${i+1}</span></td>`
-        + `<td><div style="display:flex;align-items:center;gap:4px">${t.flag} <span style="font-weight:600">${t.name}</span></div></td>`
+        + `<td><div style="display:flex;align-items:center;gap:6px">${crestImg(t)} <span style="font-weight:600">${t.name}</span></div></td>`
         + `<td>${t.j}</td><td><strong>${t.pts}</strong></td><td>${sg}</td><td>${t.gf}</td>`
         + `</tr>`;
     }).join("");
@@ -538,9 +584,9 @@ function renderGroups() {
           ? `<span class="ms">${res.home}&ndash;${res.away}</span>`
           : `<span class="ms pnd">vs</span>`;
         mhtml += `<div class="match-row">`
-          + `<div style="display:flex;align-items:center;gap:4px;flex:1">${gm.home.flag} <span>${gm.home.name}</span></div>`
+          + `<div style="display:flex;align-items:center;gap:4px;flex:1">${crestImg(gm.home)} <span>${gm.home.name}</span></div>`
           + sc
-          + `<div style="display:flex;align-items:center;gap:4px;flex:1;justify-content:flex-end"><span>${gm.away.name}</span> ${gm.away.flag}</div>`
+          + `<div style="display:flex;align-items:center;gap:4px;flex:1;justify-content:flex-end"><span>${gm.away.name}</span> ${crestImg(gm.away)}</div>`
           + `</div>`;
       }
       mhtml = `<div class="match-list">${mhtml}</div>`;
@@ -587,14 +633,21 @@ function renderCalendar() {
       const sc   = res
         ? `<span class="cal-score">${res.home}&ndash;${res.away}</span>`
         : `<span class="cal-vs">VS</span>`;
+      const homeFlagUrl = getFlagUrl(g.home.name, 160);
+      const awayFlagUrl = getFlagUrl(g.away.name, 160);
+      const bgFlags = (homeFlagUrl ? `<img src="${homeFlagUrl}" class="cal-flag-bg home" alt="Bandeira ${g.home.name}">` : "")
+                    + (awayFlagUrl ? `<img src="${awayFlagUrl}" class="cal-flag-bg away" alt="Bandeira ${g.away.name}">` : "");
       html += `<div class="cal-card${isBr ? " brazil" : ""}" style="border-left-color:${gd.color}">`
+        + bgFlags
+        + `<div class="cal-content">`
         + `<div style="font-size:.65rem;color:#94a3b8;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;font-weight:600">GRUPO ${g.group} &middot; ROD. ${g.round}</div>`
         + `<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">`
-        + `<div style="display:flex;align-items:center;gap:5px;font-weight:600;font-size:.875rem;flex:1">${g.home.flag} <span>${g.home.name}</span></div>`
+        + `<div style="display:flex;align-items:center;gap:5px;font-weight:600;font-size:.875rem;flex:1">${crestImg(g.home)} <span>${g.home.name}</span></div>`
         + sc
-        + `<div style="display:flex;align-items:center;gap:5px;font-weight:600;font-size:.875rem;flex:1;justify-content:flex-end"><span>${g.away.name}</span> ${g.away.flag}</div>`
+        + `<div style="display:flex;align-items:center;gap:5px;font-weight:600;font-size:.875rem;flex:1;justify-content:flex-end"><span>${g.away.name}</span> ${crestImg(g.away)}</div>`
         + `</div>`
         + `<div style="font-size:.68rem;color:#94a3b8;margin-top:.5rem">&#128205; ${g.venue} &nbsp;&bull;&nbsp; ${g.time}</div>`
+        + `</div>`
         + `</div>`;
     });
     html += "</div>";
@@ -625,10 +678,10 @@ function renderBracket() {
     // Show R32 slots filled with group results
     const { firsts, seconds, best8 } = getQualified();
     function res(lbl) {
-      if (lbl[0] === "1") { const t = firsts[lbl[1]];  return t ? t.flag + " " + t.name : "A definir"; }
-      if (lbl[0] === "2") { const t = seconds[lbl[1]]; return t ? t.flag + " " + t.name : "A definir"; }
+      if (lbl[0] === "1") { const t = firsts[lbl[1]];  return t ? crestImg(t, 18) + " " + t.name : "A definir"; }
+      if (lbl[0] === "2") { const t = seconds[lbl[1]]; return t ? crestImg(t, 18) + " " + t.name : "A definir"; }
       const idx = parseInt(lbl.replace("3rd","")) - 1;
-      const t = best8[idx]; return t ? t.flag + " " + t.name : "A definir";
+      const t = best8[idx]; return t ? crestImg(t, 18) + " " + t.name : "A definir";
     }
     html += `<div style="overflow-x:auto;padding-bottom:.75rem"><div style="display:flex;gap:1.25rem;min-width:max-content;padding:.5rem 0">`;
     html += `<div style="display:flex;flex-direction:column;gap:4px;min-width:172px">`;
@@ -646,15 +699,15 @@ function renderBracket() {
   const ch  = b.FIN[0].winner;
   html += `<div class="champ-card">`
     + `<div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;color:#b45309;letter-spacing:.2em;margin-bottom:.375rem">&#127942; CAMPE&Atilde;O</div>`
-    + `<div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#b45309">${ch.flag} ${ch.name}</div></div>`;
+    + `<div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#b45309;display:flex;align-items:center;justify-content:center;gap:.5rem">${crestImg(ch, 40)} ${ch.name}</div></div>`;
   function renderPhase(title, matches) {
     let ph = `<div style="display:flex;flex-direction:column;gap:4px;min-width:172px"><div class="b-phase-title">${title}</div>`;
     matches.forEach(m => {
       const hw = m.winner === m.home;
       ph += `<div class="b-match">`
-        + `<div class="b-team${hw ? " winner" : ""}">${m.home.flag} ${m.home.name}</div>`
+        + `<div class="b-team${hw ? " winner" : ""}">${crestImg(m.home, 18)} ${m.home.name}</div>`
         + `<hr class="b-sep">`
-        + `<div class="b-team${!hw ? " winner" : ""}">${m.away.flag} ${m.away.name}</div>`
+        + `<div class="b-team${!hw ? " winner" : ""}">${crestImg(m.away, 18)} ${m.away.name}</div>`
         + `</div>`;
     });
     return ph + `</div>`;
@@ -719,7 +772,7 @@ function renderSimulation() {
     }
     html += `<div class="sim-row${rowCls}">`
       + `<div style="display:flex;align-items:center;gap:6px;flex:1">`
-      + `<span style="font-size:1.2rem">${g.home.flag}</span>`
+      + `<span style="font-size:1.2rem">${crestImg(g.home, 22)}</span>`
       + `<span class="sim-tn${hcls}">${g.home.name}</span>`
       + `</div>`
       + `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:130px">`
@@ -730,7 +783,7 @@ function renderSimulation() {
       + `<input class="sc" type="number" min="0" max="20" value="${av}" data-gid="${g.id}" data-role="a" placeholder="0" aria-label="Gols ${g.away.name}">`
       + `</div></div>`
       + `<div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end;flex-direction:row-reverse">`
-      + `<span style="font-size:1.2rem">${g.away.flag}</span>`
+      + `<span style="font-size:1.2rem">${crestImg(g.away, 22)}</span>`
       + `<span class="sim-tn${acls}">${g.away.name}</span>`
       + `</div>`
       + `<div style="display:flex;gap:4px">`
