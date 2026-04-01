@@ -435,8 +435,8 @@
 </head>
 <body>
 <div id="root"></div>
-<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script>
 'use strict';
 const { useState, useMemo, useCallback } = React;
@@ -560,13 +560,17 @@ const ALL_GAMES = buildGames();
    UTILITIES
    ================================================================ */
 
+// Simulation constants (RN02)
+const SIM_BASE_GOALS    = 2.6;   // Average total goals per match
+const SIM_RAND_MULT     = 1.4;   // Randomness multiplier
+const SIM_STRENGTH_BONUS = 1.5;  // Extra goals awarded to the stronger side
+
 function autoSim(tA, tB) {
   const fA = Math.max(1, 101 - tA.ranking);
   const fB = Math.max(1, 101 - tB.ranking);
   const prob = fA / (fA + fB);
-  const base = 2.6;
-  const h = Math.round(Math.random() * 1.4 * base / 2 + (Math.random() < prob      ? Math.random() * 1.5 : 0));
-  const a = Math.round(Math.random() * 1.4 * base / 2 + (Math.random() < (1-prob) ? Math.random() * 1.5 : 0));
+  const h = Math.round(Math.random() * SIM_RAND_MULT * SIM_BASE_GOALS / 2 + (Math.random() < prob      ? Math.random() * SIM_STRENGTH_BONUS : 0));
+  const a = Math.round(Math.random() * SIM_RAND_MULT * SIM_BASE_GOALS / 2 + (Math.random() < (1-prob) ? Math.random() * SIM_STRENGTH_BONUS : 0));
   return {home: h, away: a};
 }
 
@@ -596,6 +600,7 @@ function simKO(tA, tB) {
   const prob = fA / (fA + fB);
   let sA = Math.round(Math.random() * 2.6);
   let sB = Math.round(Math.random() * 2.6);
+  // RN05: draws in knockout resolved by penalty shootout (50/50 weighted by strength)
   if (sA === sB) { if (Math.random() < prob) sA++; else sB++; }
   return {sA, sB, winner: sA > sB ? tA : tB};
 }
@@ -614,6 +619,7 @@ function buildBracket(results) {
   letters.forEach(g => { standings[g] = calcStandings(g, results); });
 
   // Collect thirds, rank by pts > sg > gf
+  // Collect thirds (all groups guaranteed to have 4 teams → index 2 always exists)
   const thirds = letters.map(g => ({...standings[g][2], group: g}))
     .sort((a, b) => b.pts - a.pts || b.sg - a.sg || b.gf - a.gf);
   const best8 = thirds.slice(0, 8);
@@ -1017,7 +1023,7 @@ function SimulationView({results, setResults}) {
   };
 
   const onInput = (id, side, val) => {
-    if (!/^[0-9]*$/.test(val) && val !== '') return;
+    if (!/^[0-9]*$/.test(val)) return;
     setPending(p => ({...p, [id]:{...(p[id]||{}), [side]:val}}));
   };
 
