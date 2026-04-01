@@ -269,12 +269,16 @@ function calcStandings(gk) {
   return teams;
 }
 
-/** RN02 — Auto-simulate one game using FIFA ranking weights */
+/** RN02 — Auto-simulate one game using FIFA ranking weights.
+ *  mg=2.6: avg goals per team; BASE=1.4*mg/2 is the base random component;
+ *  BONUS=1.5 is the extra goal multiplier given to the favored team. */
 function simGame(homeRank, awayRank) {
   const fh = Math.max(1, 101 - homeRank), fa = Math.max(1, 101 - awayRank);
-  const ph = fh / (fh + fa), mg = 2.6;
-  const gh = Math.round(Math.random() * 1.4 * mg / 2 + (Math.random() < ph ? Math.random() * 1.5 : 0));
-  const ga = Math.round(Math.random() * 1.4 * mg / 2 + (Math.random() < (1-ph) ? Math.random() * 1.5 : 0));
+  const ph = fh / (fh + fa); // probability home wins based on rank gap
+  const BASE = 1.4 * 2.6 / 2; // base score component (~1.82)
+  const BONUS = 1.5;           // extra goals bonus for the favored side
+  const gh = Math.round(Math.random() * BASE + (Math.random() < ph      ? Math.random() * BONUS : 0));
+  const ga = Math.round(Math.random() * BASE + (Math.random() < (1 - ph)? Math.random() * BONUS : 0));
   return { home: gh, away: ga };
 }
 
@@ -468,7 +472,7 @@ function renderBracket() {
       const t = best8[idx]; return t ? t.flag + " " + t.name : "A definir";
     }
     html += `<div class="b-scroll"><div class="b-phases"><div class="b-phase">`;
-    html += `<div class="b-phase-title">OITAVAS (R32)</div>`;
+    html += `<div class="b-phase-title">FASE DE 32 (R32)</div>`;
     R32_PAIRS.forEach(([hl, al]) => {
       html += `<div class="b-match">`
         + `<div class="b-team">${res(hl)}</div><hr class="b-sep">`
@@ -496,8 +500,8 @@ function renderBracket() {
     return ph + `</div>`;
   }
   html += `<div class="b-scroll"><div class="b-phases">`
-    + renderPhase("OITAVAS (R32)", b.R32)
-    + renderPhase("OITAVAS-DE-FINAL", b.R16)
+    + renderPhase("FASE DE 32 (R32)", b.R32)
+    + renderPhase("OITAVAS-DE-FINAL (R16)", b.R16)
     + renderPhase("QUARTAS-DE-FINAL", b.QF)
     + renderPhase("SEMIFINAL", b.SF)
     + renderPhase("3º LUGAR", b.THIRD)
@@ -560,9 +564,9 @@ function renderSimulation() {
       + `<div class="sim-mid">`
       + `<span class="sim-lbl">GRP ${g.group} &middot; ROD.${g.round}</span>`
       + `<div class="sim-inp">`
-      + `<input class="sc" type="number" min="0" max="20" value="${hv}" data-gid="${g.id}" data-role="h" placeholder="0">`
+      + `<input class="sc" type="number" min="0" max="20" value="${hv}" data-gid="${g.id}" data-role="h" placeholder="0" aria-label="Gols ${g.home.name}">`
       + `<span class="sc-sep">&ndash;</span>`
-      + `<input class="sc" type="number" min="0" max="20" value="${av}" data-gid="${g.id}" data-role="a" placeholder="0">`
+      + `<input class="sc" type="number" min="0" max="20" value="${av}" data-gid="${g.id}" data-role="a" placeholder="0" aria-label="Gols ${g.away.name}">`
       + `</div></div>`
       + `<div class="sim-t away">`
       + `<span style="font-size:1.2rem">${g.away.flag}</span>`
