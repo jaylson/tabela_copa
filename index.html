@@ -269,16 +269,23 @@ function calcStandings(gk) {
   return teams;
 }
 
+// Simulation formula constants (RN02)
+const SIM_AVG_GOALS   = 2.6;  // avg total goals per game (~2.6 per FIFA stats)
+const SIM_VARIANCE    = 1.4;  // multiplier for base random component
+const SIM_BONUS_GOALS = 1.5;  // extra goals bonus awarded to the favored side
+const TOURNAMENT_YEAR = 2026; // year used in date construction
+
 /** RN02 — Auto-simulate one game using FIFA ranking weights.
- *  mg=2.6: avg goals per team; BASE=1.4*mg/2 is the base random component;
- *  BONUS=1.5 is the extra goal multiplier given to the favored team. */
+ *  Returns { home, away } goals calculated from ranking strength differential. */
 function simGame(homeRank, awayRank) {
-  const fh = Math.max(1, 101 - homeRank), fa = Math.max(1, 101 - awayRank);
+  const fh = Math.max(1, 101 - homeRank);
+  const fa = Math.max(1, 101 - awayRank);
   const ph = fh / (fh + fa); // probability home wins based on rank gap
-  const BASE = 1.4 * 2.6 / 2; // base score component (~1.82)
-  const BONUS = 1.5;           // extra goals bonus for the favored side
-  const gh = Math.round(Math.random() * BASE + (Math.random() < ph      ? Math.random() * BONUS : 0));
-  const ga = Math.round(Math.random() * BASE + (Math.random() < (1 - ph)? Math.random() * BONUS : 0));
+  const base = SIM_VARIANCE * SIM_AVG_GOALS / 2; // base random component per team (~1.82)
+  const homeBonus = Math.random() < ph       ? Math.random() * SIM_BONUS_GOALS : 0;
+  const awayBonus = Math.random() < (1 - ph) ? Math.random() * SIM_BONUS_GOALS : 0;
+  const gh = Math.round(Math.random() * base + homeBonus);
+  const ga = Math.round(Math.random() * base + awayBonus);
   return { home: gh, away: ga };
 }
 
@@ -322,14 +329,16 @@ function koSim(home, away) {
   return { home, away, winner: Math.random() < 0.5 ? home : away };
 }
 
+const TBD_TEAM = { name:"TBD", flag:"", rank:50 };
+
 /** Build and simulate full bracket */
 function buildBracket() {
   const { firsts, seconds, best8 } = getQualified();
   function resolve(lbl) {
-    if (lbl[0] === "1") return firsts[lbl[1]]  || { name:"TBD", flag:"", rank:50 };
-    if (lbl[0] === "2") return seconds[lbl[1]] || { name:"TBD", flag:"", rank:50 };
+    if (lbl[0] === "1") return firsts[lbl[1]]  || TBD_TEAM;
+    if (lbl[0] === "2") return seconds[lbl[1]] || TBD_TEAM;
     const idx = parseInt(lbl.replace("3rd","")) - 1;
-    return best8[idx] || { name:"TBD", flag:"", rank:50 };
+    return best8[idx] || TBD_TEAM;
   }
   const R32 = R32_PAIRS.map(([hl, al]) => koSim(resolve(hl), resolve(al)));
   function nextRound(ms) {
@@ -352,10 +361,12 @@ const MMAP      = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,N
 
 function fmtDate(ds) {
   const [mon, day] = ds.split(" ");
-  const d = new Date(2026, MMAP[mon] || 5, parseInt(day));
+  const monthIdx = MMAP[mon];
+  if (monthIdx === undefined) return ds; // guard against unknown month strings
+  const d = new Date(TOURNAMENT_YEAR, monthIdx, parseInt(day));
   return PT_DAYS[d.getDay()] + ", " + day + " DE " + PT_MONTHS[d.getMonth()];
 }
-function dateVal(ds) { const [m,d] = ds.split(" "); return (MMAP[m]||5)*100+parseInt(d); }
+function dateVal(ds) { const [m,d] = ds.split(" "); return (MMAP[m] !== undefined ? MMAP[m] : 5)*100+parseInt(d); }
 
 // ============================================================
 // RENDER — Groups View
