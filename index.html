@@ -3,173 +3,313 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Copa do Mundo 2026 — Tracker &amp; Simulador</title>
+
+  <!-- ===== SEO: Primary Tags ===== -->
+  <title>Tabela Copa do Mundo 2026 | Grupos, Chaveamento e Simulador – FIFA World Cup</title>
+  <meta name="description" content="Tabela completa da Copa do Mundo FIFA 2026: 12 grupos, classificação em tempo real, chaveamento mata-mata e simulador de resultados. Canadá, México e EUA · 11 jun – 19 jul 2026.">
+  <meta name="keywords" content="Copa do Mundo 2026, tabela copa 2026, grupos copa 2026, classificação copa 2026, simulador copa 2026, chaveamento copa 2026, Brasil copa 2026, FIFA World Cup 2026, World Cup 2026 tabela">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="Portuguese">
+  <meta name="author" content="Copa 2026 Tracker">
+
+  <!-- ===== SEO: Canonical ===== -->
+  <link rel="canonical" href="https://tabelacopa2026.netlify.app/">
+
+  <!-- ===== SEO: Open Graph / Facebook ===== -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:url" content="https://tabelacopa2026.netlify.app/">
+  <meta property="og:site_name" content="Copa 2026 Tracker">
+  <meta property="og:title" content="Tabela Copa do Mundo 2026 | Grupos, Chaveamento e Simulador">
+  <meta property="og:description" content="Acompanhe a tabela completa da Copa do Mundo FIFA 2026. Veja grupos, classificação em tempo real, chaveamento e simule resultados. 48 seleções · 104 jogos · 11 jun – 19 jul 2026.">
+  <meta property="og:image" content="https://tabelacopa2026.netlify.app/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Copa do Mundo FIFA 2026 – Tabela, Grupos e Simulador">
+
+  <!-- ===== SEO: Twitter Card ===== -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Tabela Copa do Mundo 2026 | Simulador FIFA">
+  <meta name="twitter:description" content="Tabela completa, grupos, chaveamento e simulador de resultados da Copa do Mundo FIFA 2026. 48 seleções · 104 jogos.">
+  <meta name="twitter:image" content="https://tabelacopa2026.netlify.app/og-image.jpg">
+
+  <!-- ===== SEO: JSON-LD Structured Data ===== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Copa do Mundo 2026 – Tabela e Simulador",
+    "url": "https://tabelacopa2026.netlify.app/",
+    "description": "Aplicação web para acompanhar a tabela da Copa do Mundo FIFA 2026 com simulador de resultados, grupos, calendário e chaveamento.",
+    "applicationCategory": "SportsApplication",
+    "operatingSystem": "Web",
+    "inLanguage": "pt-BR",
+    "about": {
+      "@type": "SportsEvent",
+      "name": "Copa do Mundo FIFA 2026",
+      "alternateName": ["FIFA World Cup 2026", "World Cup 2026"],
+      "startDate": "2026-06-11",
+      "endDate": "2026-07-19",
+      "location": [
+        {"@type": "Country", "name": "Canadá"},
+        {"@type": "Country", "name": "México"},
+        {"@type": "Country", "name": "Estados Unidos"}
+      ],
+      "organizer": {"@type": "Organization", "name": "FIFA", "url": "https://www.fifa.com"},
+      "sport": "Futebol",
+      "description": "48 seleções competem na Copa do Mundo FIFA 2026, sediada no Canadá, México e Estados Unidos, de 11 de junho a 19 de julho de 2026."
+    }
+  }
+  </script>
+
+  <!-- ===== Tailwind CSS CDN ===== -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { bebas: ['"Bebas Neue"', 'Impact', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <!-- ===== Google Fonts ===== -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
-    /* === Design System "Arena Negra" === */
-    :root{
-      --bg:#05050F;--surface:#0C0C1F;--card:#111128;
-      --gold:#FFD700;--gold2:#FFE566;--cyan:#00E5FF;
-      --green:#00C851;--red:#FF4444;--muted:#7A7A9D;
+    /* Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .no-scrollbar { scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* Animations */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp 0.25s ease forwards; }
+
+    /* Nav tab */
+    .nav-tab {
+      padding: 0.75rem 1.125rem; font-size: 0.875rem; font-weight: 600;
+      color: #64748b; border-bottom: 2px solid transparent;
+      cursor: pointer; background: none; border-top: none; border-left: none; border-right: none;
+      white-space: nowrap; transition: color 0.15s; display: inline-flex; align-items: center; gap: 5px;
     }
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-    body{
-      font-family:"Rajdhani",Arial,sans-serif;
-      background:radial-gradient(ellipse at top,#1a0a2e 0%,#05050F 60%) fixed;
-      color:#fff;min-height:100vh;
+    .nav-tab:hover { color: #0f172a; }
+    .nav-tab.active { color: #0f172a; border-bottom-color: #f59e0b; }
+
+    /* Responsive groups grid */
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
     }
-    /* === Header === */
-    #header{
-      position:sticky;top:0;z-index:100;
-      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-      background:rgba(5,5,15,0.85);
-      border-bottom:1px solid rgba(255,215,0,0.15);
-      padding:14px 24px 0;
+    @media (max-width: 1280px) { .groups-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 900px)  { .groups-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 540px)  { .groups-grid { grid-template-columns: 1fr; } }
+
+    /* Responsive calendar grid */
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
     }
-    .header-top{display:flex;align-items:center;gap:16px;margin-bottom:10px;flex-wrap:wrap;}
-    .logo{font-family:"Bebas Neue",Impact,sans-serif;font-size:2.2rem;color:var(--gold);line-height:1;}
-    .header-info{flex:1;min-width:0;}
-    .header-sub{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
-    .header-badges{display:flex;gap:8px;flex-wrap:wrap;}
-    .badge{font-family:"Bebas Neue",Impact,sans-serif;font-size:.8rem;color:var(--cyan);border:1px solid var(--cyan);border-radius:4px;padding:2px 8px;letter-spacing:1px;}
-    .nav-tabs{display:flex;overflow-x:auto;scrollbar-width:none;}
-    .nav-tabs::-webkit-scrollbar{display:none;}
-    .nav-tab{
-      font-family:"Bebas Neue",Impact,sans-serif;font-size:.95rem;letter-spacing:1.5px;
-      color:var(--muted);padding:10px 18px;cursor:pointer;border:none;background:none;
-      border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;
+    @media (max-width: 1024px) { .cal-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px)  { .cal-grid { grid-template-columns: 1fr; } }
+
+    /* Card component */
+    .card {
+      background: #fff; border-radius: 0.75rem;
+      border: 1px solid #e2e8f0; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: box-shadow 0.2s, transform 0.2s;
     }
-    .nav-tab:hover{color:#fff;}
-    .nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
-    /* === App === */
-    #app{max-width:1400px;margin:0 auto;padding:24px 16px;}
-    /* === Animations === */
-    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    .fade-up{animation:fadeUp .3s ease forwards;}
-    /* === Buttons === */
-    .btn{font-family:"Bebas Neue",Impact,sans-serif;letter-spacing:1.5px;font-size:.88rem;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;transition:all .2s;}
-    .btn-gold{background:linear-gradient(135deg,var(--gold),#ffb700);color:#000;}
-    .btn-gold:hover{filter:brightness(1.1);transform:translateY(-1px);}
-    .btn-muted{background:rgba(255,255,255,.08);color:var(--muted);}
-    .btn-muted:hover{background:rgba(255,255,255,.12);color:#fff;}
-    .btn-sm{padding:7px 12px;font-size:.8rem;border-radius:6px;}
-    /* === Groups Grid === */
-    .groups-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
-    @media(max-width:1024px){.groups-grid{grid-template-columns:repeat(3,1fr);}}
-    @media(max-width:768px){.groups-grid{grid-template-columns:repeat(2,1fr);}}
-    @media(max-width:480px){.groups-grid{grid-template-columns:1fr;}}
-    .group-card{background:var(--card);border-radius:12px;overflow:hidden;transition:transform .2s,box-shadow .2s;border-top:3px solid var(--cc,#555);}
-    .group-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.45);}
-    .group-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
-    .group-letter{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.9rem;line-height:1;}
-    .brazil-badge{font-family:"Bebas Neue",Impact,sans-serif;font-size:.6rem;background:var(--green);color:#000;padding:2px 6px;border-radius:4px;letter-spacing:.5px;white-space:nowrap;}
-    .standings-table{width:100%;border-collapse:collapse;}
-    .standings-table th{font-size:.6rem;color:var(--muted);padding:4px 8px;text-align:center;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-    .standings-table th:nth-child(2),.standings-table td:nth-child(2){text-align:left;}
-    .standings-table td{padding:5px 8px;text-align:center;font-size:.82rem;}
-    .standings-table tbody tr:not(.sep-row):not(:last-child) td{border-bottom:1px solid rgba(255,255,255,.04);}
-    .classified-sep{font-size:.55rem;color:var(--gold);text-align:center;letter-spacing:2px;border-top:1px dashed rgba(255,215,0,.3);border-bottom:1px dashed rgba(255,215,0,.3);padding:2px 0;}
-    .t-cell{display:flex;align-items:center;gap:5px;}
-    .t-rank{font-size:.6rem;color:var(--muted);min-width:14px;}
-    .toggle-btn{width:100%;font-family:"Bebas Neue",Impact,sans-serif;font-size:.82rem;letter-spacing:1px;color:var(--muted);background:rgba(255,255,255,.025);border:none;border-top:1px solid rgba(255,255,255,.05);padding:9px;cursor:pointer;transition:all .2s;}
-    .toggle-btn:hover{color:#fff;background:rgba(255,255,255,.05);}
-    .match-list{padding:6px 12px 8px;border-top:1px solid rgba(255,255,255,.04);}
-    .match-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.03);}
-    .match-row:last-child{border-bottom:none;}
-    .mt{display:flex;align-items:center;gap:4px;flex:1;}
-    .mt.away{justify-content:flex-end;flex-direction:row-reverse;}
-    .ms{font-family:"Bebas Neue",Impact,sans-serif;font-size:1rem;min-width:46px;text-align:center;color:var(--gold);}
-    .ms.pnd{color:var(--muted);font-size:.8rem;}
-    .groups-bar{display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding:14px 16px;background:var(--surface);border-radius:12px;gap:12px;flex-wrap:wrap;}
-    .game-ctr{font-family:"Bebas Neue",Impact,sans-serif;font-size:1rem;color:var(--cyan);}
-    /* === Calendar === */
-    .cal-hdr{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.15rem;color:var(--gold);letter-spacing:2px;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid rgba(255,215,0,.2);}
-    .cal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-    @media(max-width:1024px){.cal-grid{grid-template-columns:repeat(2,1fr);}}
-    @media(max-width:600px){.cal-grid{grid-template-columns:1fr;}}
-    .cal-card{background:var(--card);border-radius:10px;padding:14px;border-left:3px solid var(--c,#666);transition:transform .2s,box-shadow .2s;}
-    .cal-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.35);}
-    .cal-card.brazil{box-shadow:0 0 18px rgba(0,200,81,.22);border-left-color:var(--green) !important;}
-    .cal-lbl{font-size:.6rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
-    .cal-teams{display:flex;align-items:center;justify-content:space-between;gap:6px;}
-    .cal-team{display:flex;align-items:center;gap:5px;font-weight:600;font-size:.88rem;}
-    .cal-vs{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.1rem;color:var(--gold);}
-    .cal-score{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.3rem;color:var(--gold);}
-    .cal-venue{font-size:.68rem;color:var(--muted);margin-top:8px;}
-    /* === Bracket === */
-    .b-empty{text-align:center;padding:80px 20px;color:var(--muted);}
-    .b-empty .ico{font-size:3.5rem;display:block;margin-bottom:16px;}
-    .b-empty h2{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.5rem;color:#fff;margin-bottom:8px;}
-    .b-empty p{font-size:.9rem;max-width:380px;margin:0 auto 20px;line-height:1.6;}
-    .champ-card{background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,215,0,.03));border:1px solid var(--gold);border-radius:14px;padding:24px;text-align:center;margin-bottom:24px;}
-    .champ-lbl{font-family:"Bebas Neue",Impact,sans-serif;font-size:.85rem;color:var(--gold);letter-spacing:3px;margin-bottom:6px;}
-    .champ-name{font-family:"Bebas Neue",Impact,sans-serif;font-size:2.4rem;color:var(--gold);}
-    .b-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
-    .b-scroll{overflow-x:auto;padding-bottom:12px;}
-    .b-phases{display:flex;gap:20px;min-width:max-content;padding:8px 0;}
-    .b-phase{display:flex;flex-direction:column;gap:6px;min-width:170px;}
-    .b-phase-title{font-family:"Bebas Neue",Impact,sans-serif;font-size:.85rem;color:var(--cyan);letter-spacing:2px;text-align:center;margin-bottom:8px;}
-    .b-match{background:var(--card);border-radius:8px;padding:8px 12px;border:1px solid rgba(255,255,255,.06);margin-bottom:6px;}
-    .b-team{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.78rem;font-weight:600;}
-    .b-team.winner{color:var(--gold);}
-    .b-team.tbd{color:var(--muted);font-style:italic;}
-    .b-sep{border:none;border-top:1px solid rgba(255,255,255,.06);margin:2px 0;}
-    /* === Simulation === */
-    .sim-hdr{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
-    .sim-sel{font-family:"Rajdhani",Arial,sans-serif;font-size:.88rem;background:var(--surface);color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;cursor:pointer;outline:none;}
-    .sim-sel:focus{border-color:var(--gold);}
-    .prog-wrap{background:var(--surface);border-radius:10px;padding:12px 16px;margin-bottom:16px;}
-    .prog-info{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:6px;}
-    .prog-track{background:rgba(255,255,255,.06);border-radius:100px;height:6px;overflow:hidden;}
-    .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--cyan));border-radius:100px;transition:width .4s ease;}
-    .sim-list{display:flex;flex-direction:column;gap:8px;}
-    .sim-row{background:var(--card);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.04);transition:border-color .2s;}
-    .sim-row.done{border-color:rgba(255,215,0,.14);}
-    .sim-row.draw{border-color:rgba(0,229,255,.14);}
-    .sim-t{display:flex;align-items:center;gap:7px;flex:1;}
-    .sim-t.away{justify-content:flex-end;flex-direction:row-reverse;}
-    .sim-tn{font-weight:600;font-size:.85rem;}
-    .sim-tn.win{color:var(--gold);}
-    .sim-tn.lose{color:var(--muted);}
-    .sim-mid{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:130px;}
-    .sim-lbl{font-size:.58rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
-    .sim-inp{display:flex;align-items:center;gap:5px;}
-    .sc{width:46px;height:38px;font-family:"Bebas Neue",Impact,sans-serif;font-size:1.35rem;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;outline:none;transition:border-color .2s;}
-    .sc:focus{border-color:var(--gold);}
-    .sc-sep{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.1rem;color:var(--muted);}
-    .sim-acts{display:flex;gap:5px;}
-    .btn-ok{font-family:"Bebas Neue",Impact,sans-serif;font-size:.82rem;padding:7px 13px;border:none;border-radius:6px;cursor:pointer;background:var(--green);color:#000;transition:all .2s;letter-spacing:1px;}
-    .btn-ok:hover{filter:brightness(1.1);}
-    .btn-x{font-family:"Bebas Neue",Impact,sans-serif;font-size:.82rem;padding:7px 10px;border:none;border-radius:6px;cursor:pointer;background:rgba(255,68,68,.15);color:var(--red);transition:all .2s;letter-spacing:1px;}
-    .btn-x:hover{background:rgba(255,68,68,.25);}
-    @media(max-width:600px){.sim-row{flex-wrap:wrap;}.sim-mid{min-width:100px;}.sim-tn{font-size:.72rem;}.sc{width:40px;height:34px;font-size:1.1rem;}}
-    ::-webkit-scrollbar{width:5px;height:5px;}
-    ::-webkit-scrollbar-track{background:var(--bg);}
-    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); transform: translateY(-1px); }
+    .group-card { border-top: 4px solid #e2e8f0; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 0.5rem 1rem; border-radius: 0.5rem;
+      font-size: 0.8125rem; font-weight: 600; font-family: 'Inter', sans-serif;
+      cursor: pointer; border: none; transition: all 0.15s;
+    }
+    .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
+    .btn-gold  { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+    .btn-gold:hover  { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-ghost { background: transparent; color: #64748b; border: 1px solid #e2e8f0; }
+    .btn-ghost:hover { background: #f8fafc; color: #1e293b; }
+    .btn-ok {
+      display: inline-flex; align-items: center; padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;
+      background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .btn-ok:hover { background: #bbf7d0; }
+    .btn-x {
+      display: inline-flex; align-items: center; padding: 0.375rem 0.625rem;
+      border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;
+      background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .btn-x:hover { background: #fee2e2; }
+
+    /* Standings table */
+    .standings-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+    .standings-table th {
+      padding: 0.375rem 0.5rem; text-align: center;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em;
+      text-transform: uppercase; color: #94a3b8;
+    }
+    .standings-table th:nth-child(2), .standings-table td:nth-child(2) { text-align: left; }
+    .standings-table td { padding: 0.375rem 0.5rem; text-align: center; }
+    .standings-table tbody tr { border-top: 1px solid #f1f5f9; }
+    .standings-table tbody tr:first-child { border-top: none; }
+    .classified-sep {
+      font-size: 0.6rem; color: #f59e0b; letter-spacing: 0.12em;
+      text-align: center; padding: 0.25rem 0.5rem; text-transform: uppercase;
+      border-top: 1px dashed #fde68a; border-bottom: 1px dashed #fde68a;
+    }
+
+    /* Toggle button */
+    .toggle-btn {
+      width: 100%; padding: 0.625rem; font-size: 0.75rem; font-weight: 600;
+      color: #94a3b8; background: #f8fafc; border: none; border-top: 1px solid #f1f5f9;
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em;
+    }
+    .toggle-btn:hover { color: #1e293b; background: #f1f5f9; }
+
+    /* Match list */
+    .match-list { padding: 0.5rem 0.75rem 0.625rem; border-top: 1px solid #f1f5f9; }
+    .match-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.375rem 0; font-size: 0.75rem;
+      border-bottom: 1px solid #f8fafc;
+    }
+    .match-row:last-child { border-bottom: none; }
+    .ms { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; min-width: 46px; text-align: center; color: #f59e0b; }
+    .ms.pnd { color: #94a3b8; font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 600; }
+
+    /* Groups control bar */
+    .groups-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem;
+      padding: 1rem 1.25rem; background: #fff;
+      border-radius: 0.75rem; border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    /* Calendar card */
+    .cal-card {
+      background: #fff; border-radius: 0.75rem; padding: 0.875rem 1rem;
+      border: 1px solid #e2e8f0; border-left-width: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .cal-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); transform: translateY(-1px); }
+    .cal-card.brazil { box-shadow: 0 0 0 2px rgba(22,163,74,0.3); }
+    .cal-score { font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; color: #f59e0b; }
+    .cal-vs { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; color: #94a3b8; }
+
+    /* Bracket */
+    .b-match {
+      background: #fff; border-radius: 0.5rem; padding: 0.5rem 0.75rem;
+      margin-bottom: 0.375rem; border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .b-team { display: flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0; font-size: 0.78rem; font-weight: 600; color: #475569; }
+    .b-team.winner { color: #b45309; font-weight: 700; }
+    .b-team.tbd { color: #cbd5e1; font-style: italic; }
+    .b-sep { border: none; border-top: 1px solid #f1f5f9; margin: 2px 0; }
+    .b-phase-title { font-family: 'Bebas Neue', sans-serif; font-size: 0.78rem; color: #3b82f6; letter-spacing: 0.12em; text-align: center; margin-bottom: 0.5rem; }
+    .champ-card {
+      background: linear-gradient(135deg, #fef3c7, #fffbeb);
+      border: 1px solid #fde68a; border-radius: 0.75rem;
+      padding: 1.5rem; text-align: center; margin-bottom: 1.5rem;
+    }
+
+    /* Simulation */
+    .sim-row {
+      background: #fff; border-radius: 0.75rem; padding: 0.75rem 1rem;
+      display: flex; align-items: center; gap: 0.75rem;
+      border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .sim-row.done { border-color: #fde68a; background: #fffbeb; }
+    .sim-row.draw { border-color: #bae6fd; background: #f0f9ff; }
+    .sim-tn { font-weight: 600; font-size: 0.875rem; }
+    .sim-tn.win  { color: #15803d; }
+    .sim-tn.lose { color: #94a3b8; }
+    @media (max-width: 600px) {
+      .sim-row { flex-wrap: wrap; }
+      .sim-tn { font-size: 0.75rem; }
+      .sc { width: 38px !important; height: 32px !important; font-size: 1.1rem !important; }
+    }
+
+    /* Score input */
+    .sc {
+      width: 44px; height: 36px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; text-align: center;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.375rem;
+      color: #1e293b; outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .sc:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); }
+    .sc::-webkit-inner-spin-button, .sc::-webkit-outer-spin-button { opacity: 0.7; }
+
+    /* Progress bar */
+    .prog-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #3b82f6); border-radius: 9999px; transition: width 0.4s ease; }
+
+    /* Brazil badge */
+    .brazil-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em;
+      background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;
+      border-radius: 9999px; padding: 0.125rem 0.5rem; white-space: nowrap;
+    }
+
+    /* Selects */
+    .sim-sel {
+      font-size: 0.875rem; background: #fff; color: #374151;
+      border: 1px solid #e2e8f0; border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem; cursor: pointer; outline: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: border-color 0.15s;
+    }
+    .sim-sel:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); }
   </style>
 </head>
-<body>
+
+<body class="bg-slate-50 min-h-screen text-slate-900">
 <div id="root">
-  <header id="header">
-    <div class="header-top">
-      <div class="logo">&#9917; COPA 2026</div>
-      <div class="header-info">
-        <div class="header-sub">FIFA World Cup &middot; Canad&aacute; &middot; M&eacute;xico &middot; EUA &middot; 2026</div>
-        <div class="header-badges">
-          <span class="badge">48 SELE&Ccedil;&Otilde;ES</span>
-          <span class="badge">104 JOGOS</span>
+  <header id="header" class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center gap-4 py-3 flex-wrap">
+        <div style="font-family:'Bebas Neue',Impact,sans-serif;font-size:1.9rem;letter-spacing:0.04em;color:#111827;line-height:1">
+          &#9917; COPA 2026
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs text-slate-500 uppercase tracking-widest mb-1">FIFA World Cup &middot; Canad&aacute; &middot; M&eacute;xico &middot; EUA &middot; 2026</p>
+          <div class="flex gap-2 flex-wrap">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">48 SELE&Ccedil;&Otilde;ES</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-100 text-sky-800 border border-sky-200">104 JOGOS</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">11 JUN &ndash; 19 JUL</span>
+          </div>
         </div>
       </div>
+      <nav id="nav" class="flex overflow-x-auto no-scrollbar -mx-1">
+        <button class="nav-tab" data-tab="groups">&#9917; Grupos</button>
+        <button class="nav-tab" data-tab="calendar">&#128197; Calend&aacute;rio</button>
+        <button class="nav-tab" data-tab="bracket">&#127942; Chaveamento</button>
+        <button class="nav-tab" data-tab="simulation">&#127918; Simula&ccedil;&atilde;o</button>
+      </nav>
     </div>
-    <nav class="nav-tabs" id="nav">
-      <button class="nav-tab" data-tab="groups">&#9917; GRUPOS</button>
-      <button class="nav-tab" data-tab="calendar">&#128197; CALEND&Aacute;RIO</button>
-      <button class="nav-tab" data-tab="bracket">&#127942; CHAVEAMENTO</button>
-      <button class="nav-tab" data-tab="simulation">&#127918; SIMULA&Ccedil;&Atilde;O</button>
-    </nav>
   </header>
-  <main id="app"></main>
+  <main id="app" class="max-w-7xl mx-auto px-4 sm:px-6 py-6"></main>
 </div>
 <script>
 // ============================================================
@@ -379,12 +519,12 @@ function renderGroups() {
     // Standings rows with "CLASSIFICADOS" separator after position 2
     const rows = s.map((t, i) => {
       const sep = i === 2
-        ? `<tr class="sep-row"><td colspan="6"><div class="classified-sep">&#9135;&#9135; CLASSIFICADOS &#9135;&#9135;</div></td></tr>`
+        ? `<tr><td colspan="6" style="padding:0"><div class="classified-sep">&#9135; CLASSIFICADOS &#9135;</div></td></tr>`
         : "";
       const sg = t.sg > 0 ? "+" + t.sg : t.sg;
       return sep + `<tr>`
-        + `<td><span class="t-rank">${i+1}</span></td>`
-        + `<td><div class="t-cell">${t.flag} <span style="font-size:.8rem">${t.name}</span></div></td>`
+        + `<td><span style="font-size:.65rem;color:#94a3b8;font-weight:700">${i+1}</span></td>`
+        + `<td><div style="display:flex;align-items:center;gap:4px">${t.flag} <span style="font-weight:600">${t.name}</span></div></td>`
         + `<td>${t.j}</td><td><strong>${t.pts}</strong></td><td>${sg}</td><td>${t.gf}</td>`
         + `</tr>`;
     }).join("");
@@ -398,30 +538,34 @@ function renderGroups() {
           ? `<span class="ms">${res.home}&ndash;${res.away}</span>`
           : `<span class="ms pnd">vs</span>`;
         mhtml += `<div class="match-row">`
-          + `<div class="mt">${gm.home.flag} <span>${gm.home.name}</span></div>`
+          + `<div style="display:flex;align-items:center;gap:4px;flex:1">${gm.home.flag} <span>${gm.home.name}</span></div>`
           + sc
-          + `<div class="mt away"><span>${gm.away.name}</span> ${gm.away.flag}</div>`
+          + `<div style="display:flex;align-items:center;gap:4px;flex:1;justify-content:flex-end"><span>${gm.away.name}</span> ${gm.away.flag}</div>`
           + `</div>`;
       }
       mhtml = `<div class="match-list">${mhtml}</div>`;
     }
     const bb = gd.brazil ? `<span class="brazil-badge">&#127463;&#127479; GRUPO DO BRASIL</span>` : "";
-    return `<div class="group-card fade-up" style="--cc:${gd.color}">`
-      + `<div class="group-header"><span class="group-letter" style="color:${gd.color}">GRUPO ${gk}</span>${bb}</div>`
+    return `<div class="card group-card fade-up" style="border-top-color:${gd.color}">`
+      + `<div style="padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #f1f5f9">`
+      + `<span style="font-family:'Bebas Neue',sans-serif;font-size:1.75rem;color:${gd.color};line-height:1">GRUPO ${gk}</span>${bb}`
+      + `</div>`
       + `<table class="standings-table"><thead><tr>`
       + `<th>#</th><th>Time</th><th>J</th><th>PTS</th><th>SG</th><th>GF</th>`
       + `</tr></thead><tbody>${rows}</tbody></table>`
       + mhtml
       + `<button class="toggle-btn" data-action="toggle-group" data-group="${gk}">`
-      + (exp ? "&#9660; OCULTAR JOGOS" : "&#9654; VER JOGOS (6)")
+      + (exp ? "&#9660; Ocultar jogos" : "&#9654; Ver jogos (6)")
       + `</button></div>`;
   }).join("");
   return `<div class="groups-grid">${cards}</div>`
     + `<div class="groups-bar">`
-    + `<div style="display:flex;gap:10px;flex-wrap:wrap">`
-    + `<button class="btn btn-gold" data-action="auto-sim-all">&#9889; AUTO-SIMULAR TODOS</button>`
-    + `<button class="btn btn-muted" data-action="clear-all">&#128465; LIMPAR</button>`
-    + `</div><span class="game-ctr">${total}/72 jogos</span></div>`;
+    + `<div style="display:flex;gap:8px;flex-wrap:wrap">`
+    + `<button class="btn btn-gold" data-action="auto-sim-all">&#9889; Auto-Simular Todos</button>`
+    + `<button class="btn btn-ghost" data-action="clear-all">&#128465; Limpar</button>`
+    + `</div>`
+    + `<span style="font-size:.875rem;font-weight:600;color:#475569">${total}<span style="font-weight:400;color:#94a3b8"> / 72 jogos simulados</span></span>`
+    + `</div>`;
 }
 
 // ============================================================
@@ -435,7 +579,7 @@ function renderCalendar() {
   const dates = Object.keys(byDate).sort((a, b) => dateVal(a) - dateVal(b));
   let html = "";
   dates.forEach(date => {
-    html += `<div class="cal-hdr">${fmtDate(date)}</div><div class="cal-grid">`;
+    html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.12em;color:#1e293b;margin:1.5rem 0 .75rem;padding-bottom:.5rem;border-bottom:2px solid #f1f5f9">${fmtDate(date)}</div><div class="cal-grid">`;
     byDate[date].forEach(g => {
       const gd   = GROUPS[g.group];
       const res  = state.results[g.id];
@@ -443,10 +587,14 @@ function renderCalendar() {
       const sc   = res
         ? `<span class="cal-score">${res.home}&ndash;${res.away}</span>`
         : `<span class="cal-vs">VS</span>`;
-      html += `<div class="cal-card${isBr ? " brazil" : ""}" style="--c:${gd.color}">`
-        + `<div class="cal-lbl">GRUPO ${g.group} &middot; ROD. ${g.round}</div>`
-        + `<div class="cal-teams"><div class="cal-team">${g.home.flag} <span>${g.home.name}</span></div>${sc}<div class="cal-team"><span>${g.away.name}</span> ${g.away.flag}</div></div>`
-        + `<div class="cal-venue">&#128205; ${g.venue} &nbsp;&bull;&nbsp; ${g.time}</div>`
+      html += `<div class="cal-card${isBr ? " brazil" : ""}" style="border-left-color:${gd.color}">`
+        + `<div style="font-size:.65rem;color:#94a3b8;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;font-weight:600">GRUPO ${g.group} &middot; ROD. ${g.round}</div>`
+        + `<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">`
+        + `<div style="display:flex;align-items:center;gap:5px;font-weight:600;font-size:.875rem;flex:1">${g.home.flag} <span>${g.home.name}</span></div>`
+        + sc
+        + `<div style="display:flex;align-items:center;gap:5px;font-weight:600;font-size:.875rem;flex:1;justify-content:flex-end"><span>${g.away.name}</span> ${g.away.flag}</div>`
+        + `</div>`
+        + `<div style="font-size:.68rem;color:#94a3b8;margin-top:.5rem">&#128205; ${g.venue} &nbsp;&bull;&nbsp; ${g.time}</div>`
         + `</div>`;
     });
     html += "</div>";
@@ -461,17 +609,17 @@ function renderBracket() {
   const done = doneCount();
   if (done < 72) {
     const pct = Math.round(done / 72 * 100);
-    return `<div class="b-empty">`
-      + `<span class="ico">&#127942;</span>`
-      + `<h2>Chaveamento Indisponível</h2>`
-      + `<p>Simule os jogos da fase de grupos para ver o chaveamento.<br>${done}/72 jogos concluídos (${pct}%).</p>`
-      + `<button class="btn btn-gold" data-action="auto-sim-all">&#9889; AUTO-SIMULAR GRUPOS</button>`
+    return `<div style="text-align:center;padding:5rem 1.25rem;color:#64748b">`
+      + `<span style="font-size:3.5rem;display:block;margin-bottom:1rem">&#127942;</span>`
+      + `<h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.75rem;color:#1e293b;margin-bottom:.5rem">Chaveamento Indispon&iacute;vel</h2>`
+      + `<p style="font-size:.9375rem;max-width:400px;margin:0 auto 1.5rem;line-height:1.6">Simule os jogos da fase de grupos para ver o chaveamento.<br>${done}/72 jogos conclu&iacute;dos (${pct}%).</p>`
+      + `<button class="btn btn-gold" data-action="auto-sim-all">&#9889; Auto-Simular Grupos</button>`
       + `</div>`;
   }
-  let html = `<div class="b-bar">`;
+  let html = `<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap">`;
   html += state.bracket
-    ? `<button class="btn btn-gold" data-action="sim-bracket">&#8635; RESSIMULAR CHAVEAMENTO</button>`
-    : `<button class="btn btn-gold" data-action="sim-bracket">&#127918; SIMULAR CHAVEAMENTO</button>`;
+    ? `<button class="btn btn-gold" data-action="sim-bracket">&#8635; Ressimular Chaveamento</button>`
+    : `<button class="btn btn-gold" data-action="sim-bracket">&#127918; Simular Chaveamento</button>`;
   html += `</div>`;
   if (!state.bracket) {
     // Show R32 slots filled with group results
@@ -482,7 +630,8 @@ function renderBracket() {
       const idx = parseInt(lbl.replace("3rd","")) - 1;
       const t = best8[idx]; return t ? t.flag + " " + t.name : "A definir";
     }
-    html += `<div class="b-scroll"><div class="b-phases"><div class="b-phase">`;
+    html += `<div style="overflow-x:auto;padding-bottom:.75rem"><div style="display:flex;gap:1.25rem;min-width:max-content;padding:.5rem 0">`;
+    html += `<div style="display:flex;flex-direction:column;gap:4px;min-width:172px">`;
     html += `<div class="b-phase-title">FASE DE 32 (R32)</div>`;
     R32_PAIRS.forEach(([hl, al]) => {
       html += `<div class="b-match">`
@@ -496,10 +645,10 @@ function renderBracket() {
   const b   = state.bracket;
   const ch  = b.FIN[0].winner;
   html += `<div class="champ-card">`
-    + `<div class="champ-lbl">&#127942; CAMPEÃO</div>`
-    + `<div class="champ-name">${ch.flag} ${ch.name}</div></div>`;
+    + `<div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;color:#b45309;letter-spacing:.2em;margin-bottom:.375rem">&#127942; CAMPE&Atilde;O</div>`
+    + `<div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#b45309">${ch.flag} ${ch.name}</div></div>`;
   function renderPhase(title, matches) {
-    let ph = `<div class="b-phase"><div class="b-phase-title">${title}</div>`;
+    let ph = `<div style="display:flex;flex-direction:column;gap:4px;min-width:172px"><div class="b-phase-title">${title}</div>`;
     matches.forEach(m => {
       const hw = m.winner === m.home;
       ph += `<div class="b-match">`
@@ -510,12 +659,12 @@ function renderBracket() {
     });
     return ph + `</div>`;
   }
-  html += `<div class="b-scroll"><div class="b-phases">`
+  html += `<div style="overflow-x:auto;padding-bottom:.75rem"><div style="display:flex;gap:1.25rem;min-width:max-content;padding:.5rem 0">`
     + renderPhase("FASE DE 32 (R32)", b.R32)
     + renderPhase("OITAVAS-DE-FINAL (R16)", b.R16)
     + renderPhase("QUARTAS-DE-FINAL", b.QF)
     + renderPhase("SEMIFINAL", b.SF)
-    + renderPhase("3º LUGAR", b.THIRD)
+    + renderPhase("3&ordm; LUGAR", b.THIRD)
     + renderPhase("FINAL", b.FIN)
     + `</div></div>`;
   return html;
@@ -528,7 +677,7 @@ function renderSimulation() {
   const total = doneCount();
   const pct   = Math.round(total / 72 * 100);
   // Filter controls
-  let html = `<div class="sim-hdr">`
+  let html = `<div style="display:flex;align-items:center;gap:.625rem;margin-bottom:1rem;flex-wrap:wrap">`
     + `<select class="sim-sel" data-filter="status">`
     + `<option value="all"${state.simFilter.status==="all"?" selected":""}>Todos os Jogos</option>`
     + `<option value="done"${state.simFilter.status==="done"?" selected":""}>Jogados</option>`
@@ -540,14 +689,15 @@ function renderSimulation() {
         `<option value="${gk}"${state.simFilter.group===gk?" selected":""}>Grupo ${gk}</option>`
       ).join("")
     + `</select>`
-    + `<button class="btn btn-gold btn-sm" data-action="auto-sim-all">&#9889; AUTO-SIMULAR</button>`
-    + `<button class="btn btn-muted btn-sm" data-action="clear-all">&#128465; LIMPAR</button>`
+    + `<button class="btn btn-gold btn-sm" data-action="auto-sim-all">&#9889; Auto-Simular</button>`
+    + `<button class="btn btn-ghost btn-sm" data-action="clear-all">&#128465; Limpar</button>`
     + `</div>`;
   // Progress bar
-  html += `<div class="prog-wrap">`
-    + `<div class="prog-info"><span>${total} de 72 jogos simulados</span><span>${pct}%</span></div>`
-    + `<div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>`
-    + `</div>`;
+  html += `<div style="background:#fff;border-radius:.75rem;border:1px solid #e2e8f0;padding:.875rem 1rem;margin-bottom:1rem;box-shadow:0 1px 2px rgba(0,0,0,.04)">`
+    + `<div style="display:flex;justify-content:space-between;font-size:.8rem;color:#64748b;margin-bottom:.5rem">`
+    + `<span>${total} de 72 jogos simulados</span><span style="font-weight:700;color:#1e293b">${pct}%</span></div>`
+    + `<div style="background:#f1f5f9;border-radius:9999px;height:6px;overflow:hidden">`
+    + `<div class="prog-fill" style="width:${pct}%"></div></div></div>`;
   // Filter + sort
   let games = Object.values(GAMES);
   if (state.simFilter.group !== "all")   games = games.filter(g => g.group === state.simFilter.group);
@@ -555,7 +705,7 @@ function renderSimulation() {
   if (state.simFilter.status === "pending") games = games.filter(g => !state.results[g.id]);
   games.sort((a, b) => dateVal(a.date) - dateVal(b.date) || a.id.localeCompare(b.id));
   // Game rows
-  html += `<div class="sim-list">`;
+  html += `<div style="display:flex;flex-direction:column;gap:.5rem">`;
   games.forEach(g => {
     const res    = state.results[g.id];
     const hv     = res ? res.home : "";
@@ -568,22 +718,22 @@ function renderSimulation() {
       acls = res.away > res.home ? " win" : " lose";
     }
     html += `<div class="sim-row${rowCls}">`
-      + `<div class="sim-t">`
+      + `<div style="display:flex;align-items:center;gap:6px;flex:1">`
       + `<span style="font-size:1.2rem">${g.home.flag}</span>`
       + `<span class="sim-tn${hcls}">${g.home.name}</span>`
       + `</div>`
-      + `<div class="sim-mid">`
-      + `<span class="sim-lbl">GRP ${g.group} &middot; ROD.${g.round}</span>`
-      + `<div class="sim-inp">`
+      + `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:130px">`
+      + `<span style="font-size:.6rem;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;font-weight:600">GRP ${g.group} &middot; ROD.${g.round}</span>`
+      + `<div style="display:flex;align-items:center;gap:4px">`
       + `<input class="sc" type="number" min="0" max="20" value="${hv}" data-gid="${g.id}" data-role="h" placeholder="0" aria-label="Gols ${g.home.name}">`
-      + `<span class="sc-sep">&ndash;</span>`
+      + `<span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:#94a3b8">&ndash;</span>`
       + `<input class="sc" type="number" min="0" max="20" value="${av}" data-gid="${g.id}" data-role="a" placeholder="0" aria-label="Gols ${g.away.name}">`
       + `</div></div>`
-      + `<div class="sim-t away">`
+      + `<div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end;flex-direction:row-reverse">`
       + `<span style="font-size:1.2rem">${g.away.flag}</span>`
       + `<span class="sim-tn${acls}">${g.away.name}</span>`
       + `</div>`
-      + `<div class="sim-acts">`
+      + `<div style="display:flex;gap:4px">`
       + `<button class="btn-ok" data-action="confirm" data-gid="${g.id}">&#10003; OK</button>`
       + (res ? `<button class="btn-x" data-action="remove" data-gid="${g.id}">&#10005;</button>` : "")
       + `</div></div>`;
