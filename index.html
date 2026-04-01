@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copa do Mundo 2026 — Tracker & Simulador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #05050F;
+      --surface: #0C0C1F;
+      --card: #111128;
+      --gold: #FFD700;
+      --gold2: #FFE566;
+      --cyan: #00E5FF;
+      --green: #00C851;
+      --red: #FF4444;
+      --muted: #7A7A9D;
+      --text: #E8E8FF;
+      --border: rgba(255,255,255,0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% -10%, rgba(255,215,0,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 90%, rgba(0,20,80,0.45) 0%, transparent 60%),
+        linear-gradient(135deg, rgba(0,5,30,0.6) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+    #root { position: relative; z-index: 1; }
+
+    /* ===== HEADER ===== */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(5,5,15,0.82);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .header-inner {
+      max-width: 1440px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px; gap: 16px;
+    }
+    .logo {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 28px; color: var(--gold); letter-spacing: 2px;
+      white-space: nowrap; text-shadow: 0 0 24px rgba(255,215,0,0.45);
+      flex-shrink: 0;
+    }
+    .header-badges { display: flex; gap: 8px; flex-shrink: 0; }
+    .badge {
+      background: rgba(255,215,0,0.10);
+      border: 1px solid rgba(255,215,0,0.30);
+      color: var(--gold);
+      font-family: 'Bebas Neue', cursive;
+      font-size: 12px; letter-spacing: 1px;
+      padding: 4px 10px; border-radius: 4px;
+    }
+    .nav { display: flex; }
+    .nav-btn {
+      background: none; border: none;
+      color: var(--muted);
+      font-family: 'Bebas Neue', cursive;
+      font-size: 15px; letter-spacing: 1px;
+      padding: 0 16px; height: 64px;
+      cursor: pointer; transition: color 0.2s;
+      position: relative; white-space: nowrap;
+    }
+    .nav-btn.active { color: var(--gold); }
+    .nav-btn.active::after {
+      content: ''; position: absolute;
+      bottom: 0; left: 0; right: 0; height: 3px;
+      background: var(--gold); border-radius: 2px 2px 0 0;
+    }
+    .nav-btn:hover:not(.active) { color: var(--text); }
+
+    /* ===== MAIN ===== */
+    .main { max-width: 1440px; margin: 0 auto; padding: 80px 20px 48px; }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 26px; letter-spacing: 2px;
+      color: var(--text); margin-bottom: 20px;
+    }
+    .section-title span { color: var(--gold); }
+
+    /* ===== CONTROLS BAR ===== */
+    .controls-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 20px;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+      flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .controls-left { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 14px; letter-spacing: 1px;
+      padding: 9px 18px; border-radius: 8px;
+      border: none; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-gold { background: var(--gold); color: #000; }
+    .btn-gold:hover { background: var(--gold2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,215,0,0.3); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn-outline:hover { border-color: var(--red); color: var(--red); }
+    .counter-text { font-size: 14px; color: var(--muted); }
+    .counter-text span { color: var(--gold); font-weight: 700; }
+
+    /* ===== GROUPS GRID ===== */
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 1280px) { .groups-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 960px)  { .groups-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px)  {
+      .groups-grid { grid-template-columns: 1fr; }
+      .header-badges { display: none; }
+      .nav-btn { padding: 0 10px; font-size: 12px; }
+      .logo { font-size: 22px; }
+    }
+
+    /* ===== GROUP CARD ===== */
+    .group-card {
+      background: var(--card);
+      border-radius: 12px;
+      overflow: hidden;
+      animation: fadeUp 0.4s ease forwards;
+      opacity: 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid var(--border);
+    }
+    .group-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+    .group-card-header {
+      padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .group-letter {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 32px; line-height: 1;
+    }
+    .brazil-badge {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 10px; letter-spacing: 1px;
+      padding: 3px 8px; border-radius: 4px;
+      background: rgba(0,200,81,0.18);
+      border: 1px solid var(--green);
+      color: var(--green);
+    }
+
+    /* ===== STANDINGS TABLE ===== */
+    .standings-table { width: 100%; border-collapse: collapse; }
+    .standings-table th {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 10px; letter-spacing: 1px;
+      color: var(--muted); text-align: center;
+      padding: 5px 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .standings-table th:nth-child(2) { text-align: left; padding-left: 6px; }
+    .standings-table td {
+      text-align: center; padding: 6px 4px;
+      font-size: 13px; font-weight: 600; border: none;
+    }
+    .standings-table td:nth-child(2) { text-align: left; padding-left: 6px; }
+    .standings-table tr.classified { background: rgba(0,200,81,0.05); }
+    .standings-table tr.classified td:first-child { color: var(--green); font-weight: 700; }
+    .divider-row td { border-bottom: 2px dashed rgba(0,200,81,0.35) !important; padding-bottom: 8px; }
+    .team-cell { display: flex; align-items: center; gap: 5px; }
+    .flag { font-size: 15px; line-height: 1; flex-shrink: 0; }
+    .team-name {
+      font-size: 12px; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;
+    }
+
+    /* ===== MATCHES PANEL ===== */
+    .matches-toggle {
+      width: 100%; background: none; border: none;
+      border-top: 1px solid var(--border);
+      color: var(--muted); font-family: 'Rajdhani', sans-serif;
+      font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      padding: 7px 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: color 0.2s;
+    }
+    .matches-toggle:hover { color: var(--text); }
+    .matches-panel { padding: 6px 8px; border-top: 1px solid var(--border); }
+    .match-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px; border-radius: 6px;
+      font-size: 11px; gap: 4px;
+    }
+    .match-row:hover { background: rgba(255,255,255,0.04); }
+    .match-team { display: flex; align-items: center; gap: 4px; font-weight: 600; flex: 1; }
+    .match-team.right { flex-direction: row-reverse; text-align: right; }
+    .match-score {
+      font-family: 'Bebas Neue', cursive; font-size: 15px;
+      min-width: 38px; text-align: center; color: var(--gold);
+    }
+    .match-score.pending { color: var(--muted); font-size: 11px; font-family: 'Rajdhani', sans-serif; font-weight: 600; }
+
+    /* ===== CALENDAR ===== */
+    .date-header {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 18px; color: var(--gold);
+      letter-spacing: 2px; margin: 22px 0 10px;
+      padding-bottom: 7px; border-bottom: 1px solid var(--border);
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 900px) { .calendar-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px) { .calendar-grid { grid-template-columns: 1fr; } }
+    .cal-card {
+      background: var(--card);
+      border-radius: 10px; padding: 12px;
+      border: 1px solid var(--border);
+      border-left-width: 3px;
+      transition: transform 0.2s;
+      animation: fadeUp 0.35s ease forwards; opacity: 0;
+    }
+    .cal-card:hover { transform: translateY(-2px); }
+    .cal-card.brazil-game { background: rgba(0,200,81,0.06); }
+    .cal-label {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 10px; letter-spacing: 1px;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .cal-teams {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 6px;
+    }
+    .cal-team { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+    .cal-flag { font-size: 20px; }
+    .cal-name { font-size: 11px; font-weight: 600; text-align: center; }
+    .cal-vs {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 18px; color: var(--muted);
+      min-width: 44px; text-align: center;
+    }
+    .cal-vs.scored { color: var(--gold); font-size: 22px; }
+    .cal-venue { font-size: 10px; color: var(--muted); margin-top: 7px; text-align: center; }
+
+    /* ===== BRACKET ===== */
+    .bracket-empty {
+      text-align: center; padding: 80px 20px;
+    }
+    .bracket-empty h2 {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 28px; color: var(--muted); margin-bottom: 10px;
+    }
+    .bracket-empty p { color: var(--muted); font-size: 15px; margin-top: 6px; }
+    .bracket-empty .pct { color: var(--gold); font-weight: 700; font-size: 16px; margin-top: 12px; }
+    .champion-display {
+      text-align: center; padding: 32px 20px;
+      background: radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 70%);
+      border-radius: 16px; border: 1px solid rgba(255,215,0,0.25);
+      margin-bottom: 24px;
+    }
+    .champion-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 18px; letter-spacing: 3px; color: var(--muted); margin-bottom: 8px;
+    }
+    .champion-flag { font-size: 52px; }
+    .champion-name {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 44px; color: var(--gold);
+      text-shadow: 0 0 40px rgba(255,215,0,0.55); margin-top: 4px;
+    }
+    .bracket-container { overflow-x: auto; padding-bottom: 16px; }
+    .bracket-rounds { display: flex; gap: 20px; min-width: max-content; padding: 8px 0; }
+    .bracket-round { display: flex; flex-direction: column; }
+    .round-header {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 13px; letter-spacing: 1px;
+      color: var(--gold); text-align: center;
+      padding: 6px 12px; margin-bottom: 6px;
+      background: rgba(255,215,0,0.07);
+      border: 1px solid rgba(255,215,0,0.15);
+      border-radius: 6px;
+    }
+    .round-matches {
+      display: flex; flex-direction: column;
+      justify-content: space-around; gap: 8px;
+    }
+    .bracket-match {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+      width: 190px;
+    }
+    .bracket-team {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 10px; font-size: 12px; font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+    .bracket-team:last-child { border-bottom: none; }
+    .bracket-team.winner { color: var(--gold); background: rgba(255,215,0,0.07); }
+    .bracket-team.empty { color: var(--muted); font-style: italic; }
+    .bracket-score { margin-left: auto; font-family: 'Bebas Neue', cursive; font-size: 15px; }
+
+    /* ===== SIMULATION ===== */
+    .sim-controls {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 20px;
+      margin-bottom: 20px;
+    }
+    .sim-controls-top {
+      display: flex; align-items: center;
+      gap: 10px; flex-wrap: wrap; margin-bottom: 12px;
+    }
+    .sim-filters {
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+      margin-bottom: 10px;
+    }
+    .filter-group { display: flex; align-items: center; gap: 8px; }
+    .filter-label {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 12px; letter-spacing: 1px; color: var(--muted);
+    }
+    .filter-select {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); font-family: 'Rajdhani', sans-serif;
+      font-size: 13px; font-weight: 600;
+      padding: 5px 10px; border-radius: 6px; cursor: pointer; outline: none;
+    }
+    .progress-bar-wrap {
+      background: rgba(255,255,255,0.07);
+      border-radius: 4px; height: 5px; overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold2));
+      transition: width 0.4s ease; border-radius: 4px;
+    }
+    .progress-text { font-size: 12px; color: var(--muted); margin-top: 5px; }
+    .progress-text span { color: var(--gold); font-weight: 700; }
+    .sim-list { display: flex; flex-direction: column; gap: 7px; }
+    .sim-row {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left-width: 3px;
+      border-radius: 10px; padding: 10px 14px;
+      display: flex; align-items: center; gap: 10px;
+      animation: fadeUp 0.3s ease forwards; opacity: 0;
+    }
+    .sim-side {
+      display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0;
+    }
+    .sim-side.right { flex-direction: row-reverse; }
+    .sim-tname {
+      font-size: 13px; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sim-tname.winner { color: var(--gold); }
+    .sim-tname.loser  { color: var(--muted); }
+    .sim-tname.draw   { color: var(--cyan); }
+    .score-area { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+    .score-input {
+      width: 46px; height: 34px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--gold);
+      font-family: 'Bebas Neue', cursive; font-size: 20px;
+      text-align: center; outline: none; transition: border-color 0.2s;
+    }
+    .score-input:focus { border-color: var(--gold); }
+    .sim-x { font-family: 'Bebas Neue', cursive; font-size: 13px; color: var(--muted); }
+    .btn-ok {
+      background: rgba(0,200,81,0.14); border: 1px solid var(--green);
+      color: var(--green); font-family: 'Bebas Neue', cursive;
+      font-size: 14px; padding: 5px 11px; border-radius: 6px;
+      cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+    }
+    .btn-ok:hover { background: rgba(0,200,81,0.28); }
+    .btn-del {
+      background: rgba(255,68,68,0.10); border: 1px solid rgba(255,68,68,0.30);
+      color: var(--red); font-family: 'Bebas Neue', cursive;
+      font-size: 14px; padding: 5px 11px; border-radius: 6px;
+      cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+    }
+    .btn-del:hover { background: rgba(255,68,68,0.24); }
+    .sim-meta {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 10px; color: var(--muted); letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+    .sim-actions { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.25); border-radius: 3px; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script>
+'use strict';
+const { useState, useMemo, useCallback } = React;
+
+/* ================================================================
+   DATA
+   ================================================================ */
+
+const GROUP_COLORS = {
+  A:'#FF6B35', B:'#4ECDC4', C:'#00C851', D:'#FF6584',
+  E:'#A855F7', F:'#06B6D4', G:'#F59E0B', H:'#EC4899',
+  I:'#8B5CF6', J:'#10B981', K:'#F97316', L:'#6366F1'
+};
+
+const GROUPS = {
+  A:{ teams:[
+    {name:'México',         flag:'🇲🇽', ranking:9 },
+    {name:'África do Sul',  flag:'🇿🇦', ranking:61},
+    {name:'Coreia do Sul',  flag:'🇰🇷', ranking:22},
+    {name:'Rep. Tcheca',    flag:'🇨🇿', ranking:38},
+  ]},
+  B:{ teams:[
+    {name:'Canadá',   flag:'🇨🇦', ranking:47},
+    {name:'Bósnia',   flag:'🇧🇦', ranking:65},
+    {name:'Catar',    flag:'🇶🇦', ranking:56},
+    {name:'Suíça',    flag:'🇨🇭', ranking:19},
+  ]},
+  C:{ teams:[
+    {name:'Brasil',   flag:'🇧🇷', ranking:5,  brazil:true},
+    {name:'Marrocos', flag:'🇲🇦', ranking:13},
+    {name:'Haiti',    flag:'🇭🇹', ranking:83},
+    {name:'Escócia',  flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', ranking:33},
+  ]},
+  D:{ teams:[
+    {name:'EUA',       flag:'🇺🇸', ranking:11},
+    {name:'Paraguai',  flag:'🇵🇾', ranking:64},
+    {name:'Austrália', flag:'🇦🇺', ranking:23},
+    {name:'Turquia',   flag:'🇹🇷', ranking:31},
+  ]},
+  E:{ teams:[
+    {name:'Alemanha',         flag:'🇩🇪', ranking:16},
+    {name:'Curaçao',          flag:'🇨🇼', ranking:85},
+    {name:'Costa do Marfim',  flag:'🇨🇮', ranking:53},
+    {name:'Equador',          flag:'🇪🇨', ranking:44},
+  ]},
+  F:{ teams:[
+    {name:'Holanda',  flag:'🇳🇱', ranking:7 },
+    {name:'Japão',    flag:'🇯🇵', ranking:18},
+    {name:'Suécia',   flag:'🇸🇪', ranking:25},
+    {name:'Tunísia',  flag:'🇹🇳', ranking:34},
+  ]},
+  G:{ teams:[
+    {name:'Bélgica',       flag:'🇧🇪', ranking:3 },
+    {name:'Egito',         flag:'🇪🇬', ranking:40},
+    {name:'Irã',           flag:'🇮🇷', ranking:20},
+    {name:'Nova Zelândia', flag:'🇳🇿', ranking:91},
+  ]},
+  H:{ teams:[
+    {name:'Espanha',        flag:'🇪🇸', ranking:8 },
+    {name:'Cabo Verde',     flag:'🇨🇻', ranking:72},
+    {name:'Arábia Saudita', flag:'🇸🇦', ranking:56},
+    {name:'Uruguai',        flag:'🇺🇾', ranking:15},
+  ]},
+  I:{ teams:[
+    {name:'França',   flag:'🇫🇷', ranking:2 },
+    {name:'Senegal',  flag:'🇸🇳', ranking:17},
+    {name:'Iraque',   flag:'🇮🇶', ranking:58},
+    {name:'Noruega',  flag:'🇳🇴', ranking:26},
+  ]},
+  J:{ teams:[
+    {name:'Argentina', flag:'🇦🇷', ranking:1 },
+    {name:'Argélia',   flag:'🇩🇿', ranking:36},
+    {name:'Áustria',   flag:'🇦🇹', ranking:30},
+    {name:'Jordânia',  flag:'🇯🇴', ranking:74},
+  ]},
+  K:{ teams:[
+    {name:'Portugal',    flag:'🇵🇹', ranking:6 },
+    {name:'RD Congo',    flag:'🇨🇩', ranking:55},
+    {name:'Uzbequistão', flag:'🇺🇿', ranking:80},
+    {name:'Colômbia',    flag:'🇨🇴', ranking:12},
+  ]},
+  L:{ teams:[
+    {name:'Inglaterra', flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', ranking:4 },
+    {name:'Croácia',    flag:'🇭🇷', ranking:10},
+    {name:'Gana',       flag:'🇬🇭', ranking:66},
+    {name:'Panamá',     flag:'🇵🇦', ranking:49},
+  ]},
+};
+
+// Brazil-specific venue overrides  (group C round-robin order: R1=C-0, R2=C-2, R3=C-4)
+const BRAZIL_VENUES = {
+  'C-0': 'MetLife Stadium, NJ',
+  'C-2': 'Lincoln Financial Field, Filadelfia',
+  'C-4': 'A confirmar',
+};
+
+// Round-date mapping: index 0-11 maps to group A-L
+const ROUND1_DATES = ['Jun 11','Jun 11','Jun 13','Jun 12','Jun 13','Jun 13','Jun 14','Jun 14','Jun 11','Jun 12','Jun 13','Jun 14'];
+const ROUND2_DATES = ['Jun 15','Jun 15','Jun 19','Jun 16','Jun 17','Jun 17','Jun 18','Jun 18','Jun 19','Jun 16','Jun 17','Jun 18'];
+const ROUND3_DATES = ['Jun 23','Jun 23','Jun 24','Jun 24','Jun 25','Jun 25','Jun 26','Jun 26','Jun 23','Jun 24','Jun 25','Jun 26'];
+
+function buildGames() {
+  const games = [];
+  const letters = Object.keys(GROUPS);
+  letters.forEach((g, gi) => {
+    // Round 1: 0v1, 2v3
+    games.push({id:`${g}-0`, group:g, round:1, date:ROUND1_DATES[gi], tA:0, tB:1});
+    games.push({id:`${g}-1`, group:g, round:1, date:ROUND1_DATES[gi], tA:2, tB:3});
+    // Round 2: 0v2, 1v3
+    games.push({id:`${g}-2`, group:g, round:2, date:ROUND2_DATES[gi], tA:0, tB:2});
+    games.push({id:`${g}-3`, group:g, round:2, date:ROUND2_DATES[gi], tA:1, tB:3});
+    // Round 3: 0v3, 1v2
+    games.push({id:`${g}-4`, group:g, round:3, date:ROUND3_DATES[gi], tA:0, tB:3});
+    games.push({id:`${g}-5`, group:g, round:3, date:ROUND3_DATES[gi], tA:1, tB:2});
+  });
+  return games;
+}
+const ALL_GAMES = buildGames();
+
+/* ================================================================
+   UTILITIES
+   ================================================================ */
+
+function autoSim(tA, tB) {
+  const fA = Math.max(1, 101 - tA.ranking);
+  const fB = Math.max(1, 101 - tB.ranking);
+  const prob = fA / (fA + fB);
+  const base = 2.6;
+  const h = Math.round(Math.random() * 1.4 * base / 2 + (Math.random() < prob      ? Math.random() * 1.5 : 0));
+  const a = Math.round(Math.random() * 1.4 * base / 2 + (Math.random() < (1-prob) ? Math.random() * 1.5 : 0));
+  return {home: h, away: a};
+}
+
+function calcStandings(group, results) {
+  const teams = GROUPS[group].teams;
+  const st = teams.map((t, i) => ({idx:i, team:t, pts:0, j:0, gf:0, ga:0, sg:0}));
+  ALL_GAMES.filter(g => g.group === group).forEach(game => {
+    const r = results[game.id];
+    if (!r || r.home === '' || r.away === '') return;
+    const h = Number(r.home), a = Number(r.away);
+    if (isNaN(h) || isNaN(a)) return;
+    const sA = st[game.tA], sB = st[game.tB];
+    sA.j++; sB.j++;
+    sA.gf += h; sA.ga += a; sA.sg += h - a;
+    sB.gf += a; sB.ga += h; sB.sg += a - h;
+    if (h > a)      { sA.pts += 3; }
+    else if (h < a) { sB.pts += 3; }
+    else            { sA.pts += 1; sB.pts += 1; }
+  });
+  return st.sort((x, y) => y.pts - x.pts || y.sg - x.sg || y.gf - x.gf);
+}
+
+function simKO(tA, tB) {
+  if (!tA || !tB) return null;
+  const fA = Math.max(1, 101 - (tA.ranking || 50));
+  const fB = Math.max(1, 101 - (tB.ranking || 50));
+  const prob = fA / (fA + fB);
+  let sA = Math.round(Math.random() * 2.6);
+  let sB = Math.round(Math.random() * 2.6);
+  if (sA === sB) { if (Math.random() < prob) sA++; else sB++; }
+  return {sA, sB, winner: sA > sB ? tA : tB};
+}
+
+function buildBracket(results) {
+  const letters = Object.keys(GROUPS);
+  const allDone = letters.every(g =>
+    ALL_GAMES.filter(x => x.group === g).every(x => {
+      const r = results[x.id];
+      return r && r.home !== '' && r.away !== '';
+    })
+  );
+  if (!allDone) return null;
+
+  const standings = {};
+  letters.forEach(g => { standings[g] = calcStandings(g, results); });
+
+  // Collect thirds, rank by pts > sg > gf
+  const thirds = letters.map(g => ({...standings[g][2], group: g}))
+    .sort((a, b) => b.pts - a.pts || b.sg - a.sg || b.gf - a.gf);
+  const best8 = thirds.slice(0, 8);
+
+  // R32 pairings: 1st[A-F] vs 2nd[G-L], 1st[G-L] vs 2nd[A-F]  => 12 matches
+  //               thirds[0-3] vs thirds[4-7]                     =>  4 matches
+  //               Total = 16 matches
+  const r32 = [];
+  const firstHalf  = letters.slice(0, 6);  // A-F
+  const secondHalf = letters.slice(6, 12); // G-L
+  firstHalf.forEach((g1, i) => {
+    const g2 = secondHalf[i];
+    r32.push({tA:{...standings[g1][0].team, group:g1}, tB:{...standings[g2][1].team, group:g2}});
+  });
+  secondHalf.forEach((g1, i) => {
+    const g2 = firstHalf[i];
+    r32.push({tA:{...standings[g1][0].team, group:g1}, tB:{...standings[g2][1].team, group:g2}});
+  });
+  for (let i = 0; i < 4; i++) {
+    r32.push({tA: best8[i].team, tB: best8[i+4].team});
+  }
+
+  const r32r = r32.map(m => simKO(m.tA, m.tB));
+
+  // R16: winners of r32[0-1] play, r32[2-3], etc.
+  const r16 = [];
+  for (let i = 0; i < 16; i += 2) {
+    r16.push({tA: r32r[i]?.winner, tB: r32r[i+1]?.winner});
+  }
+  const r16r = r16.map(m => simKO(m.tA, m.tB));
+
+  // QF
+  const qf = [];
+  for (let i = 0; i < 8; i += 2) {
+    qf.push({tA: r16r[i]?.winner, tB: r16r[i+1]?.winner});
+  }
+  const qfr = qf.map(m => simKO(m.tA, m.tB));
+
+  // SF
+  const sf = [];
+  for (let i = 0; i < 4; i += 2) {
+    sf.push({tA: qfr[i]?.winner, tB: qfr[i+1]?.winner});
+  }
+  const sfr = sf.map(m => simKO(m.tA, m.tB));
+
+  // 3rd place: losers of SF
+  const l1 = sfr[0] ? (sfr[0].sA > sfr[0].sB ? sf[0].tB : sf[0].tA) : null;
+  const l2 = sfr[1] ? (sfr[1].sA > sfr[1].sB ? sf[1].tB : sf[1].tA) : null;
+  const tpr = simKO(l1, l2);
+
+  // Final
+  const fr = simKO(sfr[0]?.winner, sfr[1]?.winner);
+
+  return {
+    r32:  r32.map((m,i)  => ({...m, r: r32r[i]})),
+    r16:  r16.map((m,i)  => ({...m, r: r16r[i]})),
+    qf:   qf.map((m,i)   => ({...m, r: qfr[i]})),
+    sf:   sf.map((m,i)   => ({...m, r: sfr[i]})),
+    tp:   {tA: l1, tB: l2, r: tpr},
+    fin:  {tA: sfr[0]?.winner, tB: sfr[1]?.winner, r: fr},
+    champ: fr?.winner,
+  };
+}
+
+/* ================================================================
+   COMPONENTS
+   ================================================================ */
+
+// ---- Header ----
+function Header({tab, setTab}) {
+  const tabs = [
+    {id:'groups',     icon:'⚽', label:'Grupos'},
+    {id:'calendar',   icon:'📅', label:'Calendário'},
+    {id:'bracket',    icon:'🏆', label:'Chaveamento'},
+    {id:'simulation', icon:'🎮', label:'Simulação'},
+  ];
+  return React.createElement('header', {className:'header'},
+    React.createElement('div', {className:'header-inner'},
+      React.createElement('div', {className:'logo'}, '⚽ COPA 2026'),
+      React.createElement('div', {className:'header-badges'},
+        React.createElement('span', {className:'badge'}, '48 SELEÇÕES'),
+        React.createElement('span', {className:'badge'}, '104 JOGOS'),
+      ),
+      React.createElement('nav', {className:'nav'},
+        tabs.map(t =>
+          React.createElement('button', {
+            key:t.id,
+            className:`nav-btn${tab===t.id?' active':''}`,
+            onClick:()=>setTab(t.id),
+          }, `${t.icon} ${t.label}`)
+        )
+      )
+    )
+  );
+}
+
+// ---- Group Card ----
+function GroupCard({group, gIdx, results, isOpen, onToggle}) {
+  const color   = GROUP_COLORS[group];
+  const teams   = GROUPS[group].teams;
+  const hasBR   = teams.some(t => t.brazil);
+  const st      = useMemo(() => calcStandings(group, results), [group, results]);
+  const gGames  = ALL_GAMES.filter(g => g.group === group);
+
+  return React.createElement('div', {
+    className:'group-card',
+    style:{
+      borderTop:`3px solid ${color}`,
+      animationDelay:`${gIdx*55}ms`,
+      ...(hasBR ? {boxShadow:`0 0 22px rgba(0,200,81,0.18)`} : {}),
+    }
+  },
+    // Card header
+    React.createElement('div', {
+      className:'group-card-header',
+      style:{background:`${color}14`}
+    },
+      React.createElement('span', {className:'group-letter', style:{color}}, `GRUPO ${group}`),
+      hasBR && React.createElement('span', {className:'brazil-badge'}, 'GRUPO C 🇧🇷'),
+    ),
+
+    // Standings
+    React.createElement('table', {className:'standings-table'},
+      React.createElement('thead', null,
+        React.createElement('tr', null,
+          React.createElement('th', null, 'POS'),
+          React.createElement('th', null, 'SELEÇÃO'),
+          React.createElement('th', null, 'J'),
+          React.createElement('th', null, 'PTS'),
+          React.createElement('th', null, 'SG'),
+          React.createElement('th', null, 'GF'),
+        )
+      ),
+      React.createElement('tbody', null,
+        st.flatMap((s, pos) => {
+          const rows = [];
+          rows.push(
+            React.createElement('tr', {
+              key:s.idx,
+              className:[pos<2?'classified':'', s.team.brazil?'brazil':''].join(' ').trim(),
+            },
+              React.createElement('td', null, pos+1),
+              React.createElement('td', null,
+                React.createElement('div', {className:'team-cell'},
+                  React.createElement('span', {className:'flag'}, s.team.flag),
+                  React.createElement('span', {className:'team-name'}, s.team.name),
+                )
+              ),
+              React.createElement('td', null, s.j),
+              React.createElement('td', {style:{color: pos<2 ? color : undefined, fontWeight:'700'}}, s.pts),
+              React.createElement('td', {style:{color: s.sg>0?'#00C851':s.sg<0?'#FF4444':undefined}}, s.sg),
+              React.createElement('td', null, s.gf),
+            )
+          );
+          // Divider after 2nd place
+          if (pos === 1) {
+            rows.push(
+              React.createElement('tr', {key:'div', className:'divider-row'},
+                React.createElement('td', {colSpan:6})
+              )
+            );
+          }
+          return rows;
+        })
+      )
+    ),
+
+    // Matches toggle
+    React.createElement('button', {
+      className:'matches-toggle',
+      onClick:()=>onToggle(group),
+    },
+      React.createElement('span', null, '📋 JOGOS DO GRUPO'),
+      React.createElement('span', null, isOpen ? '▲' : '▼'),
+    ),
+
+    // Matches panel
+    isOpen && React.createElement('div', {className:'matches-panel'},
+      gGames.map(game => {
+        const tA = teams[game.tA], tB = teams[game.tB];
+        const r  = results[game.id];
+        const ok = r && r.home !== '' && r.away !== '';
+        return React.createElement('div', {key:game.id, className:'match-row'},
+          React.createElement('div', {className:'match-team'},
+            React.createElement('span', null, tA.flag),
+            React.createElement('span', null, tA.name),
+          ),
+          React.createElement('div', {className:`match-score${ok?'':' pending'}`},
+            ok ? `${r.home} - ${r.away}` : 'VS'
+          ),
+          React.createElement('div', {className:'match-team right'},
+            React.createElement('span', null, tB.name),
+            React.createElement('span', null, tB.flag),
+          ),
+        );
+      })
+    ),
+  );
+}
+
+// ---- Groups View ----
+function GroupsView({results, setResults}) {
+  const [open, setOpen] = useState({});
+  const toggle = useCallback(g => setOpen(p => ({...p,[g]:!p[g]})), []);
+
+  const done = useMemo(() =>
+    Object.values(results).filter(r => r && r.home !== '' && r.away !== '').length,
+    [results]
+  );
+
+  const autoAll = useCallback(() => {
+    const nr = {...results};
+    ALL_GAMES.forEach(game => {
+      const tA = GROUPS[game.group].teams[game.tA];
+      const tB = GROUPS[game.group].teams[game.tB];
+      const r  = autoSim(tA, tB);
+      nr[game.id] = {home: r.home, away: r.away};
+    });
+    setResults(nr);
+  }, [results, setResults]);
+
+  const clearAll = useCallback(() => setResults({}), [setResults]);
+
+  return React.createElement('div', null,
+    React.createElement('div', {className:'controls-bar'},
+      React.createElement('div', {className:'controls-left'},
+        React.createElement('button', {className:'btn btn-gold', onClick:autoAll}, '⚡ AUTO-SIMULAR'),
+        React.createElement('button', {className:'btn btn-outline', onClick:clearAll}, '🗑️ LIMPAR'),
+      ),
+      React.createElement('div', {className:'counter-text'},
+        React.createElement('span', null, done), ` / 72 jogos simulados`
+      ),
+    ),
+    React.createElement('div', {className:'groups-grid'},
+      Object.keys(GROUPS).map((g, gi) =>
+        React.createElement(GroupCard, {
+          key:g, group:g, gIdx:gi,
+          results, isOpen:!!open[g], onToggle:toggle,
+        })
+      )
+    ),
+  );
+}
+
+// ---- Calendar View ----
+function CalendarView({results}) {
+  const byDate = useMemo(() => {
+    const m = {};
+    ALL_GAMES.forEach(game => {
+      if (!m[game.date]) m[game.date] = [];
+      m[game.date].push(game);
+    });
+    return m;
+  }, []);
+
+  const sortedDates = useMemo(() => {
+    const mo = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+    return Object.keys(byDate).sort((a,b) => {
+      const [ma,da] = a.split(' ');
+      const [mb,db] = b.split(' ');
+      return mo[ma] !== mo[mb] ? mo[ma]-mo[mb] : Number(da)-Number(db);
+    });
+  }, [byDate]);
+
+  let cardIdx = 0;
+  return React.createElement('div', null,
+    React.createElement('h2', {className:'section-title'}, 'CALENDÁRIO DA ', React.createElement('span', null, 'FASE DE GRUPOS')),
+    sortedDates.map(date =>
+      React.createElement('div', {key:date},
+        React.createElement('div', {className:'date-header'}, `📅 ${date}`),
+        React.createElement('div', {className:'calendar-grid'},
+          byDate[date].map(game => {
+            const idx = cardIdx++;
+            const teams  = GROUPS[game.group].teams;
+            const tA = teams[game.tA], tB = teams[game.tB];
+            const r  = results[game.id];
+            const ok = r && r.home !== '' && r.away !== '';
+            const isBR  = tA.brazil || tB.brazil;
+            const color = GROUP_COLORS[game.group];
+            const venue = BRAZIL_VENUES[game.id];
+            return React.createElement('div', {
+              key:game.id,
+              className:`cal-card${isBR?' brazil-game':''}`,
+              style:{borderLeftColor:color, animationDelay:`${(idx%18)*35}ms`},
+            },
+              React.createElement('div', {className:'cal-label'},
+                `GRUPO ${game.group} · RODADA ${game.round}`
+              ),
+              React.createElement('div', {className:'cal-teams'},
+                React.createElement('div', {className:'cal-team'},
+                  React.createElement('div', {className:'cal-flag'}, tA.flag),
+                  React.createElement('div', {className:'cal-name'}, tA.name),
+                ),
+                React.createElement('div', {className:`cal-vs${ok?' scored':''}`},
+                  ok ? `${r.home} - ${r.away}` : 'VS'
+                ),
+                React.createElement('div', {className:'cal-team'},
+                  React.createElement('div', {className:'cal-flag'}, tB.flag),
+                  React.createElement('div', {className:'cal-name'}, tB.name),
+                ),
+              ),
+              venue && React.createElement('div', {className:'cal-venue'}, `📍 ${venue}`),
+            );
+          })
+        )
+      )
+    )
+  );
+}
+
+// ---- Bracket View ----
+function BracketView({results}) {
+  const done = Object.values(results).filter(r => r && r.home !== '' && r.away !== '').length;
+  const bracket = useMemo(() => buildBracket(results), [results]);
+
+  if (done < 72 || !bracket) {
+    return React.createElement('div', {className:'bracket-empty'},
+      React.createElement('div', {style:{fontSize:'60px', marginBottom:'14px'}}, '🏆'),
+      React.createElement('h2', null, 'CHAVEAMENTO NÃO DISPONÍVEL'),
+      React.createElement('p', null, `Simule todos os jogos da fase de grupos para ver o chaveamento.`),
+      React.createElement('p', {className:'pct'}, `${done} / 72 jogos simulados`),
+    );
+  }
+
+  function BTeam({team, isWin, score}) {
+    return React.createElement('div', {
+      className:`bracket-team${isWin?' winner':''}${!team?' empty':''}`,
+    },
+      React.createElement('span', {style:{fontSize:'14px'}}, team?.flag || ''),
+      React.createElement('span', {style:{flex:1, fontSize:'12px'}}, team?.name || 'A definir'),
+      score != null && React.createElement('span', {className:'bracket-score'}, score),
+    );
+  }
+
+  function BMatch({m}) {
+    if (!m) return React.createElement('div', {className:'bracket-match'},
+      React.createElement(BTeam, {team:null}),
+      React.createElement(BTeam, {team:null}),
+    );
+    const wA = m.r && m.r.sA > m.r.sB;
+    const wB = m.r && m.r.sB > m.r.sA;
+    return React.createElement('div', {className:'bracket-match'},
+      React.createElement(BTeam, {team:m.tA, isWin:wA, score:m.r?.sA}),
+      React.createElement(BTeam, {team:m.tB, isWin:wB, score:m.r?.sB}),
+    );
+  }
+
+  function Round({title, matches}) {
+    return React.createElement('div', {className:'bracket-round'},
+      React.createElement('div', {className:'round-header'}, title),
+      React.createElement('div', {className:'round-matches'},
+        matches.map((m,i) => React.createElement(BMatch, {key:i, m}))
+      )
+    );
+  }
+
+  return React.createElement('div', null,
+    bracket.champ && React.createElement('div', {className:'champion-display'},
+      React.createElement('div', {className:'champion-title'}, '🏆 CAMPEÃO MUNDIAL 2026 🏆'),
+      React.createElement('div', {className:'champion-flag'}, bracket.champ.flag),
+      React.createElement('div', {className:'champion-name'}, bracket.champ.name),
+    ),
+    React.createElement('div', {className:'bracket-container'},
+      React.createElement('div', {className:'bracket-rounds'},
+        React.createElement(Round, {title:'16-AVOS (A)',   matches: bracket.r32.slice(0,8)}),
+        React.createElement(Round, {title:'16-AVOS (B)',   matches: bracket.r32.slice(8)}),
+        React.createElement(Round, {title:'OITAVAS',       matches: bracket.r16}),
+        React.createElement(Round, {title:'QUARTAS',       matches: bracket.qf}),
+        React.createElement(Round, {title:'SEMIFINAL',     matches: bracket.sf}),
+        React.createElement(Round, {title:'FINAL / 3º LG', matches:[bracket.fin, bracket.tp]}),
+      )
+    )
+  );
+}
+
+// ---- Simulation View ----
+function SimulationView({results, setResults}) {
+  const [statusF, setStatusF] = useState('all');
+  const [groupF,  setGroupF]  = useState('all');
+  const [pending, setPending] = useState({});
+
+  const done = useMemo(() =>
+    Object.values(results).filter(r => r && r.home !== '' && r.away !== '').length,
+    [results]
+  );
+
+  const filtered = useMemo(() => ALL_GAMES.filter(game => {
+    const r  = results[game.id];
+    const ok = r && r.home !== '' && r.away !== '';
+    if (statusF==='played'  && !ok) return false;
+    if (statusF==='pending' &&  ok) return false;
+    if (groupF!=='all' && game.group !== groupF) return false;
+    return true;
+  }), [statusF, groupF, results]);
+
+  const getVal = (id, side) => {
+    const p = pending[id];
+    if (p && p[side] !== undefined) return p[side];
+    const r = results[id];
+    return r ? (r[side] ?? '') : '';
+  };
+
+  const onInput = (id, side, val) => {
+    if (!/^[0-9]*$/.test(val) && val !== '') return;
+    setPending(p => ({...p, [id]:{...(p[id]||{}), [side]:val}}));
+  };
+
+  const onConfirm = id => {
+    const p = pending[id] || {};
+    const r = results[id] || {};
+    const h = p.home !== undefined ? p.home : r.home ?? '';
+    const a = p.away !== undefined ? p.away : r.away ?? '';
+    if (h !== '' && a !== '') {
+      setResults(prev => ({...prev, [id]:{home:Number(h), away:Number(a)}}));
+      setPending(prev => {const n={...prev}; delete n[id]; return n;});
+    }
+  };
+
+  const onDelete = id => {
+    setResults(prev => {const n={...prev}; delete n[id]; return n;});
+    setPending(prev => {const n={...prev}; delete n[id]; return n;});
+  };
+
+  const autoAll = () => {
+    const nr = {};
+    ALL_GAMES.forEach(game => {
+      const tA = GROUPS[game.group].teams[game.tA];
+      const tB = GROUPS[game.group].teams[game.tB];
+      const r  = autoSim(tA, tB);
+      nr[game.id] = {home:r.home, away:r.away};
+    });
+    setResults(nr);
+    setPending({});
+  };
+
+  const clearAll = () => { setResults({}); setPending({}); };
+
+  const pct = Math.round(done / 72 * 100);
+
+  return React.createElement('div', null,
+    // Controls
+    React.createElement('div', {className:'sim-controls'},
+      React.createElement('div', {className:'sim-controls-top'},
+        React.createElement('button', {className:'btn btn-gold', onClick:autoAll}, '⚡ AUTO-SIMULAR TUDO'),
+        React.createElement('button', {className:'btn btn-outline', onClick:clearAll}, '🗑️ LIMPAR TUDO'),
+      ),
+      React.createElement('div', {className:'sim-filters'},
+        React.createElement('div', {className:'filter-group'},
+          React.createElement('span', {className:'filter-label'}, 'STATUS:'),
+          React.createElement('select', {
+            className:'filter-select', value:statusF,
+            onChange:e=>setStatusF(e.target.value),
+          },
+            React.createElement('option', {value:'all'},     'Todos'),
+            React.createElement('option', {value:'played'},  'Jogados'),
+            React.createElement('option', {value:'pending'}, 'Pendentes'),
+          ),
+        ),
+        React.createElement('div', {className:'filter-group'},
+          React.createElement('span', {className:'filter-label'}, 'GRUPO:'),
+          React.createElement('select', {
+            className:'filter-select', value:groupF,
+            onChange:e=>setGroupF(e.target.value),
+          },
+            React.createElement('option', {value:'all'}, 'Todos'),
+            ...Object.keys(GROUPS).map(g =>
+              React.createElement('option', {key:g, value:g}, `Grupo ${g}`)
+            ),
+          ),
+        ),
+      ),
+      React.createElement('div', {className:'progress-bar-wrap'},
+        React.createElement('div', {className:'progress-bar', style:{width:`${pct}%`}}),
+      ),
+      React.createElement('div', {className:'progress-text'},
+        React.createElement('span', null, done),
+        ` / 72 jogos simulados (`,
+        React.createElement('span', null, `${pct}%`),
+        `)`,
+      ),
+    ),
+
+    // Game list
+    React.createElement('div', {className:'sim-list'},
+      filtered.map((game, idx) => {
+        const teams = GROUPS[game.group].teams;
+        const tA = teams[game.tA], tB = teams[game.tB];
+        const r  = results[game.id];
+        const ok = r && r.home !== '' && r.away !== '';
+        const color = GROUP_COLORS[game.group];
+        const hv = getVal(game.id, 'home');
+        const av = getVal(game.id, 'away');
+
+        let hCls = 'sim-tname', aCls = 'sim-tname';
+        if (ok) {
+          if      (r.home > r.away) { hCls += ' winner'; aCls += ' loser';  }
+          else if (r.home < r.away) { aCls += ' winner'; hCls += ' loser';  }
+          else                      { hCls += ' draw';   aCls += ' draw';   }
+        }
+
+        return React.createElement('div', {
+          key:game.id,
+          className:`sim-row${ok?' played':''}`,
+          style:{borderLeftColor:color, animationDelay:`${(idx%25)*28}ms`},
+        },
+          // Team A
+          React.createElement('div', {className:'sim-side'},
+            React.createElement('span', {style:{fontSize:'18px'}}, tA.flag),
+            React.createElement('span', {className:hCls}, tA.name),
+          ),
+          // Score inputs
+          React.createElement('div', {className:'score-area'},
+            React.createElement('input', {
+              className:'score-input', type:'text',
+              inputMode:'numeric', maxLength:2, placeholder:'-',
+              value:hv,
+              onChange:e=>onInput(game.id,'home',e.target.value),
+              onKeyDown:e=>{ if(e.key==='Enter') onConfirm(game.id); },
+            }),
+            React.createElement('span', {className:'sim-x'}, 'X'),
+            React.createElement('input', {
+              className:'score-input', type:'text',
+              inputMode:'numeric', maxLength:2, placeholder:'-',
+              value:av,
+              onChange:e=>onInput(game.id,'away',e.target.value),
+              onKeyDown:e=>{ if(e.key==='Enter') onConfirm(game.id); },
+            }),
+          ),
+          // Team B
+          React.createElement('div', {className:'sim-side right'},
+            React.createElement('span', {className:aCls}, tB.name),
+            React.createElement('span', {style:{fontSize:'18px'}}, tB.flag),
+          ),
+          // Actions
+          React.createElement('div', {className:'sim-actions'},
+            React.createElement('span', {className:'sim-meta'}, `G-${game.group} R${game.round}`),
+            React.createElement('button', {className:'btn-ok', onClick:()=>onConfirm(game.id)}, '✓'),
+            ok && React.createElement('button', {className:'btn-del', onClick:()=>onDelete(game.id)}, '✕'),
+          ),
+        );
+      })
+    ),
+  );
+}
+
+/* ================================================================
+   APP
+   ================================================================ */
+
+function App() {
+  const [tab,     setTab]     = useState('groups');
+  const [results, setResults] = useState({});
+
+  return React.createElement('div', null,
+    React.createElement(Header, {tab, setTab}),
+    React.createElement('main', {className:'main'},
+      tab==='groups'     && React.createElement(GroupsView,     {results, setResults}),
+      tab==='calendar'   && React.createElement(CalendarView,   {results}),
+      tab==='bracket'    && React.createElement(BracketView,    {results}),
+      tab==='simulation' && React.createElement(SimulationView, {results, setResults}),
+    ),
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
