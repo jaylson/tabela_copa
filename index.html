@@ -296,6 +296,45 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: border-color 0.15s;
     }
     .sim-sel:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(15,23,42,0.55); backdrop-filter: blur(2px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.hidden { display: none; }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal-box {
+      background: #fff; border-radius: 1rem; width: 100%; max-width: 520px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: modalIn 0.2s ease forwards;
+    }
+    .modal-header {
+      position: sticky; top: 0; z-index: 1; background: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.25rem; border-bottom: 1px solid #f1f5f9;
+    }
+    .modal-close {
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      background: #f1f5f9; border: none; border-radius: 50%; cursor: pointer;
+      font-size: 1rem; color: #64748b; transition: background 0.15s, color 0.15s;
+    }
+    .modal-close:hover { background: #e2e8f0; color: #0f172a; }
+    .modal-game-row {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.625rem 1.25rem; border-bottom: 1px solid #f8fafc;
+    }
+    .modal-game-row:last-child { border-bottom: none; }
+    .modal-meta {
+      font-size: 0.65rem; color: #94a3b8; text-transform: uppercase;
+      letter-spacing: 0.07em; font-weight: 600; white-space: nowrap;
+      min-width: 70px;
+    }
+    .modal-score { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: #f59e0b; min-width: 42px; text-align: center; }
+    .modal-score.pnd { font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 600; color: #94a3b8; }
   </style>
 </head>
 
@@ -326,6 +365,21 @@
   </header>
   <main id="app" class="max-w-7xl mx-auto px-4 sm:px-6 py-6"></main>
 </div>
+
+<!-- ===== Group Games Modal ===== -->
+<div id="group-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <span id="modal-group-label" style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;line-height:1"></span>
+        <p id="modal-group-badge" style="margin-top:2px"></p>
+      </div>
+      <button class="modal-close" id="modal-close-btn" aria-label="Fechar modal">&#10005;</button>
+    </div>
+    <div id="modal-games-list"></div>
+  </div>
+</div>
+
 <script>
 // ============================================================
 // DATA — 12 Groups / 48 teams
@@ -424,7 +478,6 @@ function crestImg(team, size) {
 const state = {
   activeTab: "groups",
   results: {},              // { "A-1": {home:2,away:1}, ... }
-  expandedGroups: new Set(), // groups showing match list
   simFilter: { status:"all", group:"all" },
   bracket: null             // null or full bracket after simulation
 };
@@ -561,7 +614,6 @@ function renderGroups() {
   const total = doneCount();
   const cards = Object.entries(GROUPS).map(([gk, gd]) => {
     const s   = calcStandings(gk);
-    const exp = state.expandedGroups.has(gk);
     // Standings rows with "CLASSIFICADOS" separator after position 2
     const rows = s.map((t, i) => {
       const sep = i === 2
@@ -574,23 +626,6 @@ function renderGroups() {
         + `<td>${t.j}</td><td><strong>${t.pts}</strong></td><td>${sg}</td><td>${t.gf}</td>`
         + `</tr>`;
     }).join("");
-    // Expanded match list
-    let mhtml = "";
-    if (exp) {
-      for (let mi = 1; mi <= 6; mi++) {
-        const gm  = GAMES[gk + "-" + mi];
-        const res = state.results[gm.id];
-        const sc  = res
-          ? `<span class="ms">${res.home}&ndash;${res.away}</span>`
-          : `<span class="ms pnd">vs</span>`;
-        mhtml += `<div class="match-row">`
-          + `<div style="display:flex;align-items:center;gap:4px;flex:1">${crestImg(gm.home)} <span>${gm.home.name}</span></div>`
-          + sc
-          + `<div style="display:flex;align-items:center;gap:4px;flex:1;justify-content:flex-end"><span>${gm.away.name}</span> ${crestImg(gm.away)}</div>`
-          + `</div>`;
-      }
-      mhtml = `<div class="match-list">${mhtml}</div>`;
-    }
     const bb = gd.brazil ? `<span class="brazil-badge">&#127463;&#127479; GRUPO DO BRASIL</span>` : "";
     return `<div class="card group-card fade-up" style="border-top-color:${gd.color}">`
       + `<div style="padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #f1f5f9">`
@@ -599,10 +634,7 @@ function renderGroups() {
       + `<table class="standings-table"><thead><tr>`
       + `<th>#</th><th>Time</th><th>J</th><th>PTS</th><th>SG</th><th>GF</th>`
       + `</tr></thead><tbody>${rows}</tbody></table>`
-      + mhtml
-      + `<button class="toggle-btn" data-action="toggle-group" data-group="${gk}">`
-      + (exp ? "&#9660; Ocultar jogos" : "&#9654; Ver jogos (6)")
-      + `</button></div>`;
+      + `<button class="toggle-btn" data-action="open-group-modal" data-group="${gk}">&#9654; Ver jogos (6)</button></div>`;
   }).join("");
   return `<div class="groups-grid">${cards}</div>`
     + `<div class="groups-bar">`
@@ -796,6 +828,44 @@ function renderSimulation() {
 }
 
 // ============================================================
+// MODAL — Group Games
+// ============================================================
+function openGroupModal(gk) {
+  const gd = GROUPS[gk];
+  const modal   = document.getElementById("group-modal");
+  const label   = document.getElementById("modal-group-label");
+  const badge   = document.getElementById("modal-group-badge");
+  const list    = document.getElementById("modal-games-list");
+
+  label.textContent = "GRUPO " + gk + " — JOGOS";
+  label.style.color = gd.color;
+  badge.innerHTML   = gd.brazil ? `<span class="brazil-badge">&#127463;&#127479; GRUPO DO BRASIL</span>` : "";
+
+  let html = "";
+  for (let mi = 1; mi <= 6; mi++) {
+    const gm  = GAMES[gk + "-" + mi];
+    const res = state.results[gm.id];
+    const sc  = res
+      ? `<span class="modal-score">${res.home}&ndash;${res.away}</span>`
+      : `<span class="modal-score pnd">vs</span>`;
+    html += `<div class="modal-game-row">`
+      + `<div class="modal-meta">&#128197; ${gm.date}<br>&#128336; ${gm.time}</div>`
+      + `<div style="display:flex;align-items:center;gap:4px;flex:1;min-width:0">${crestImg(gm.home)} <span style="font-size:.8125rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${gm.home.name}</span></div>`
+      + sc
+      + `<div style="display:flex;align-items:center;gap:4px;flex:1;min-width:0;justify-content:flex-end"><span style="font-size:.8125rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${gm.away.name}</span> ${crestImg(gm.away)}</div>`
+      + `</div>`;
+  }
+  list.innerHTML = html;
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeGroupModal() {
+  document.getElementById("group-modal").classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+// ============================================================
 // MAIN RENDER
 // ============================================================
 function render() {
@@ -831,10 +901,8 @@ document.getElementById("app").addEventListener("click", function(e) {
   const t = e.target.closest("[data-action]");
   if (!t) return;
   const action = t.dataset.action;
-  if (action === "toggle-group") {
-    const gk = t.dataset.group;
-    state.expandedGroups.has(gk) ? state.expandedGroups.delete(gk) : state.expandedGroups.add(gk);
-    render();
+  if (action === "open-group-modal") {
+    openGroupModal(t.dataset.group);
   } else if (action === "auto-sim-all") {
     autoSimAll(); state.bracket = null; render();
   } else if (action === "clear-all") {
@@ -865,6 +933,15 @@ document.getElementById("app").addEventListener("change", function(e) {
 document.getElementById("nav").addEventListener("click", function(e) {
   const btn = e.target.closest(".nav-tab");
   if (btn) { state.activeTab = btn.dataset.tab; render(); }
+});
+
+// Modal close events
+document.getElementById("modal-close-btn").addEventListener("click", closeGroupModal);
+document.getElementById("group-modal").addEventListener("click", function(e) {
+  if (e.target === this) closeGroupModal();
+});
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape" && !document.getElementById("group-modal").classList.contains("hidden")) closeGroupModal();
 });
 
 // ============================================================
