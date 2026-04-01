@@ -3,1188 +3,656 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Copa do Mundo 2026 — Tracker & Simulador</title>
+  <title>Copa do Mundo 2026 — Tracker &amp; Simulador</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #05050F;
-      --surface: #0C0C1F;
-      --card: #111128;
-      --gold: #FFD700;
-      --gold2: #FFE566;
-      --cyan: #00E5FF;
-      --green: #00C851;
-      --red: #FF4444;
-      --muted: #7A7A9D;
-      --text: #E8E8FF;
-      --border: rgba(255,255,255,0.08);
+    /* === Design System "Arena Negra" === */
+    :root{
+      --bg:#05050F;--surface:#0C0C1F;--card:#111128;
+      --gold:#FFD700;--gold2:#FFE566;--cyan:#00E5FF;
+      --green:#00C851;--red:#FF4444;--muted:#7A7A9D;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:"Rajdhani",Arial,sans-serif;
+      background:radial-gradient(ellipse at top,#1a0a2e 0%,#05050F 60%) fixed;
+      color:#fff;min-height:100vh;
     }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse at 50% -10%, rgba(255,215,0,0.10) 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 90%, rgba(0,20,80,0.45) 0%, transparent 60%),
-        linear-gradient(135deg, rgba(0,5,30,0.6) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
+    /* === Header === */
+    #header{
+      position:sticky;top:0;z-index:100;
+      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      background:rgba(5,5,15,0.85);
+      border-bottom:1px solid rgba(255,215,0,0.15);
+      padding:14px 24px 0;
     }
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px);
-      background-size: 60px 60px;
-      opacity: 0.18;
-      pointer-events: none;
-      z-index: 0;
+    .header-top{display:flex;align-items:center;gap:16px;margin-bottom:10px;flex-wrap:wrap;}
+    .logo{font-family:"Bebas Neue",Impact,sans-serif;font-size:2.2rem;color:var(--gold);line-height:1;}
+    .header-info{flex:1;min-width:0;}
+    .header-sub{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+    .header-badges{display:flex;gap:8px;flex-wrap:wrap;}
+    .badge{font-family:"Bebas Neue",Impact,sans-serif;font-size:.8rem;color:var(--cyan);border:1px solid var(--cyan);border-radius:4px;padding:2px 8px;letter-spacing:1px;}
+    .nav-tabs{display:flex;overflow-x:auto;scrollbar-width:none;}
+    .nav-tabs::-webkit-scrollbar{display:none;}
+    .nav-tab{
+      font-family:"Bebas Neue",Impact,sans-serif;font-size:.95rem;letter-spacing:1.5px;
+      color:var(--muted);padding:10px 18px;cursor:pointer;border:none;background:none;
+      border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;
     }
-    #root { position: relative; z-index: 1; }
-
-    /* ===== HEADER ===== */
-    .header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(5,5,15,0.82);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 24px;
-    }
-    .header-inner {
-      max-width: 1440px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 64px; gap: 16px;
-    }
-    .logo {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 28px; color: var(--gold); letter-spacing: 2px;
-      white-space: nowrap; text-shadow: 0 0 24px rgba(255,215,0,0.45);
-      flex-shrink: 0;
-    }
-    .header-badges { display: flex; gap: 8px; flex-shrink: 0; }
-    .badge {
-      background: rgba(255,215,0,0.10);
-      border: 1px solid rgba(255,215,0,0.30);
-      color: var(--gold);
-      font-family: 'Bebas Neue', cursive;
-      font-size: 12px; letter-spacing: 1px;
-      padding: 4px 10px; border-radius: 4px;
-    }
-    .nav { display: flex; }
-    .nav-btn {
-      background: none; border: none;
-      color: var(--muted);
-      font-family: 'Bebas Neue', cursive;
-      font-size: 15px; letter-spacing: 1px;
-      padding: 0 16px; height: 64px;
-      cursor: pointer; transition: color 0.2s;
-      position: relative; white-space: nowrap;
-    }
-    .nav-btn.active { color: var(--gold); }
-    .nav-btn.active::after {
-      content: ''; position: absolute;
-      bottom: 0; left: 0; right: 0; height: 3px;
-      background: var(--gold); border-radius: 2px 2px 0 0;
-    }
-    .nav-btn:hover:not(.active) { color: var(--text); }
-
-    /* ===== MAIN ===== */
-    .main { max-width: 1440px; margin: 0 auto; padding: 80px 20px 48px; }
-
-    /* ===== ANIMATIONS ===== */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== SECTION TITLE ===== */
-    .section-title {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 26px; letter-spacing: 2px;
-      color: var(--text); margin-bottom: 20px;
-    }
-    .section-title span { color: var(--gold); }
-
-    /* ===== CONTROLS BAR ===== */
-    .controls-bar {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 20px;
-      display: flex; align-items: center;
-      justify-content: space-between; gap: 16px;
-      flex-wrap: wrap; margin-bottom: 20px;
-    }
-    .controls-left { display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 14px; letter-spacing: 1px;
-      padding: 9px 18px; border-radius: 8px;
-      border: none; cursor: pointer; transition: all 0.2s;
-    }
-    .btn-gold { background: var(--gold); color: #000; }
-    .btn-gold:hover { background: var(--gold2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,215,0,0.3); }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--muted); }
-    .btn-outline:hover { border-color: var(--red); color: var(--red); }
-    .counter-text { font-size: 14px; color: var(--muted); }
-    .counter-text span { color: var(--gold); font-weight: 700; }
-
-    /* ===== GROUPS GRID ===== */
-    .groups-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-    @media (max-width: 1280px) { .groups-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 960px)  { .groups-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 580px)  {
-      .groups-grid { grid-template-columns: 1fr; }
-      .header-badges { display: none; }
-      .nav-btn { padding: 0 10px; font-size: 12px; }
-      .logo { font-size: 22px; }
-    }
-
-    /* ===== GROUP CARD ===== */
-    .group-card {
-      background: var(--card);
-      border-radius: 12px;
-      overflow: hidden;
-      animation: fadeUp 0.4s ease forwards;
-      opacity: 0;
-      transition: transform 0.2s, box-shadow 0.2s;
-      border: 1px solid var(--border);
-    }
-    .group-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-    .group-card-header {
-      padding: 10px 14px;
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-    }
-    .group-letter {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 32px; line-height: 1;
-    }
-    .brazil-badge {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 10px; letter-spacing: 1px;
-      padding: 3px 8px; border-radius: 4px;
-      background: rgba(0,200,81,0.18);
-      border: 1px solid var(--green);
-      color: var(--green);
-    }
-
-    /* ===== STANDINGS TABLE ===== */
-    .standings-table { width: 100%; border-collapse: collapse; }
-    .standings-table th {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 10px; letter-spacing: 1px;
-      color: var(--muted); text-align: center;
-      padding: 5px 4px;
-      border-bottom: 1px solid var(--border);
-    }
-    .standings-table th:nth-child(2) { text-align: left; padding-left: 6px; }
-    .standings-table td {
-      text-align: center; padding: 6px 4px;
-      font-size: 13px; font-weight: 600; border: none;
-    }
-    .standings-table td:nth-child(2) { text-align: left; padding-left: 6px; }
-    .standings-table tr.classified { background: rgba(0,200,81,0.05); }
-    .standings-table tr.classified td:first-child { color: var(--green); font-weight: 700; }
-    .divider-row td { border-bottom: 2px dashed rgba(0,200,81,0.35) !important; padding-bottom: 8px; }
-    .team-cell { display: flex; align-items: center; gap: 5px; }
-    .flag { font-size: 15px; line-height: 1; flex-shrink: 0; }
-    .team-name {
-      font-size: 12px; font-weight: 600;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;
-    }
-
-    /* ===== MATCHES PANEL ===== */
-    .matches-toggle {
-      width: 100%; background: none; border: none;
-      border-top: 1px solid var(--border);
-      color: var(--muted); font-family: 'Rajdhani', sans-serif;
-      font-size: 11px; font-weight: 600; letter-spacing: 1px;
-      padding: 7px 14px; cursor: pointer;
-      display: flex; align-items: center; justify-content: space-between;
-      transition: color 0.2s;
-    }
-    .matches-toggle:hover { color: var(--text); }
-    .matches-panel { padding: 6px 8px; border-top: 1px solid var(--border); }
-    .match-row {
-      display: flex; align-items: center;
-      justify-content: space-between;
-      padding: 4px 6px; border-radius: 6px;
-      font-size: 11px; gap: 4px;
-    }
-    .match-row:hover { background: rgba(255,255,255,0.04); }
-    .match-team { display: flex; align-items: center; gap: 4px; font-weight: 600; flex: 1; }
-    .match-team.right { flex-direction: row-reverse; text-align: right; }
-    .match-score {
-      font-family: 'Bebas Neue', cursive; font-size: 15px;
-      min-width: 38px; text-align: center; color: var(--gold);
-    }
-    .match-score.pending { color: var(--muted); font-size: 11px; font-family: 'Rajdhani', sans-serif; font-weight: 600; }
-
-    /* ===== CALENDAR ===== */
-    .date-header {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 18px; color: var(--gold);
-      letter-spacing: 2px; margin: 22px 0 10px;
-      padding-bottom: 7px; border-bottom: 1px solid var(--border);
-    }
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    @media (max-width: 900px) { .calendar-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 580px) { .calendar-grid { grid-template-columns: 1fr; } }
-    .cal-card {
-      background: var(--card);
-      border-radius: 10px; padding: 12px;
-      border: 1px solid var(--border);
-      border-left-width: 3px;
-      transition: transform 0.2s;
-      animation: fadeUp 0.35s ease forwards; opacity: 0;
-    }
-    .cal-card:hover { transform: translateY(-2px); }
-    .cal-card.brazil-game { background: rgba(0,200,81,0.06); }
-    .cal-label {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 10px; letter-spacing: 1px;
-      color: var(--muted); margin-bottom: 8px;
-    }
-    .cal-teams {
-      display: flex; align-items: center;
-      justify-content: space-between; gap: 6px;
-    }
-    .cal-team { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
-    .cal-flag { font-size: 20px; }
-    .cal-name { font-size: 11px; font-weight: 600; text-align: center; }
-    .cal-vs {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 18px; color: var(--muted);
-      min-width: 44px; text-align: center;
-    }
-    .cal-vs.scored { color: var(--gold); font-size: 22px; }
-    .cal-venue { font-size: 10px; color: var(--muted); margin-top: 7px; text-align: center; }
-
-    /* ===== BRACKET ===== */
-    .bracket-empty {
-      text-align: center; padding: 80px 20px;
-    }
-    .bracket-empty h2 {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 28px; color: var(--muted); margin-bottom: 10px;
-    }
-    .bracket-empty p { color: var(--muted); font-size: 15px; margin-top: 6px; }
-    .bracket-empty .pct { color: var(--gold); font-weight: 700; font-size: 16px; margin-top: 12px; }
-    .champion-display {
-      text-align: center; padding: 32px 20px;
-      background: radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 70%);
-      border-radius: 16px; border: 1px solid rgba(255,215,0,0.25);
-      margin-bottom: 24px;
-    }
-    .champion-title {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 18px; letter-spacing: 3px; color: var(--muted); margin-bottom: 8px;
-    }
-    .champion-flag { font-size: 52px; }
-    .champion-name {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 44px; color: var(--gold);
-      text-shadow: 0 0 40px rgba(255,215,0,0.55); margin-top: 4px;
-    }
-    .bracket-container { overflow-x: auto; padding-bottom: 16px; }
-    .bracket-rounds { display: flex; gap: 20px; min-width: max-content; padding: 8px 0; }
-    .bracket-round { display: flex; flex-direction: column; }
-    .round-header {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 13px; letter-spacing: 1px;
-      color: var(--gold); text-align: center;
-      padding: 6px 12px; margin-bottom: 6px;
-      background: rgba(255,215,0,0.07);
-      border: 1px solid rgba(255,215,0,0.15);
-      border-radius: 6px;
-    }
-    .round-matches {
-      display: flex; flex-direction: column;
-      justify-content: space-around; gap: 8px;
-    }
-    .bracket-match {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 8px; overflow: hidden;
-      width: 190px;
-    }
-    .bracket-team {
-      display: flex; align-items: center; gap: 7px;
-      padding: 7px 10px; font-size: 12px; font-weight: 600;
-      border-bottom: 1px solid var(--border);
-    }
-    .bracket-team:last-child { border-bottom: none; }
-    .bracket-team.winner { color: var(--gold); background: rgba(255,215,0,0.07); }
-    .bracket-team.empty { color: var(--muted); font-style: italic; }
-    .bracket-score { margin-left: auto; font-family: 'Bebas Neue', cursive; font-size: 15px; }
-
-    /* ===== SIMULATION ===== */
-    .sim-controls {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px; padding: 14px 20px;
-      margin-bottom: 20px;
-    }
-    .sim-controls-top {
-      display: flex; align-items: center;
-      gap: 10px; flex-wrap: wrap; margin-bottom: 12px;
-    }
-    .sim-filters {
-      display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
-      margin-bottom: 10px;
-    }
-    .filter-group { display: flex; align-items: center; gap: 8px; }
-    .filter-label {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 12px; letter-spacing: 1px; color: var(--muted);
-    }
-    .filter-select {
-      background: var(--card); border: 1px solid var(--border);
-      color: var(--text); font-family: 'Rajdhani', sans-serif;
-      font-size: 13px; font-weight: 600;
-      padding: 5px 10px; border-radius: 6px; cursor: pointer; outline: none;
-    }
-    .progress-bar-wrap {
-      background: rgba(255,255,255,0.07);
-      border-radius: 4px; height: 5px; overflow: hidden;
-    }
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--gold), var(--gold2));
-      transition: width 0.4s ease; border-radius: 4px;
-    }
-    .progress-text { font-size: 12px; color: var(--muted); margin-top: 5px; }
-    .progress-text span { color: var(--gold); font-weight: 700; }
-    .sim-list { display: flex; flex-direction: column; gap: 7px; }
-    .sim-row {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-left-width: 3px;
-      border-radius: 10px; padding: 10px 14px;
-      display: flex; align-items: center; gap: 10px;
-      animation: fadeUp 0.3s ease forwards; opacity: 0;
-    }
-    .sim-side {
-      display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0;
-    }
-    .sim-side.right { flex-direction: row-reverse; }
-    .sim-tname {
-      font-size: 13px; font-weight: 600;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .sim-tname.winner { color: var(--gold); }
-    .sim-tname.loser  { color: var(--muted); }
-    .sim-tname.draw   { color: var(--cyan); }
-    .score-area { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
-    .score-input {
-      width: 46px; height: 34px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 6px; color: var(--gold);
-      font-family: 'Bebas Neue', cursive; font-size: 20px;
-      text-align: center; outline: none; transition: border-color 0.2s;
-    }
-    .score-input:focus { border-color: var(--gold); }
-    .sim-x { font-family: 'Bebas Neue', cursive; font-size: 13px; color: var(--muted); }
-    .btn-ok {
-      background: rgba(0,200,81,0.14); border: 1px solid var(--green);
-      color: var(--green); font-family: 'Bebas Neue', cursive;
-      font-size: 14px; padding: 5px 11px; border-radius: 6px;
-      cursor: pointer; transition: all 0.2s; flex-shrink: 0;
-    }
-    .btn-ok:hover { background: rgba(0,200,81,0.28); }
-    .btn-del {
-      background: rgba(255,68,68,0.10); border: 1px solid rgba(255,68,68,0.30);
-      color: var(--red); font-family: 'Bebas Neue', cursive;
-      font-size: 14px; padding: 5px 11px; border-radius: 6px;
-      cursor: pointer; transition: all 0.2s; flex-shrink: 0;
-    }
-    .btn-del:hover { background: rgba(255,68,68,0.24); }
-    .sim-meta {
-      font-family: 'Bebas Neue', cursive;
-      font-size: 10px; color: var(--muted); letter-spacing: 1px;
-      flex-shrink: 0;
-    }
-    .sim-actions { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
-
-    /* ===== SCROLLBAR ===== */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.25); border-radius: 3px; }
+    .nav-tab:hover{color:#fff;}
+    .nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+    /* === App === */
+    #app{max-width:1400px;margin:0 auto;padding:24px 16px;}
+    /* === Animations === */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .fade-up{animation:fadeUp .3s ease forwards;}
+    /* === Buttons === */
+    .btn{font-family:"Bebas Neue",Impact,sans-serif;letter-spacing:1.5px;font-size:.88rem;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;transition:all .2s;}
+    .btn-gold{background:linear-gradient(135deg,var(--gold),#ffb700);color:#000;}
+    .btn-gold:hover{filter:brightness(1.1);transform:translateY(-1px);}
+    .btn-muted{background:rgba(255,255,255,.08);color:var(--muted);}
+    .btn-muted:hover{background:rgba(255,255,255,.12);color:#fff;}
+    .btn-sm{padding:7px 12px;font-size:.8rem;border-radius:6px;}
+    /* === Groups Grid === */
+    .groups-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+    @media(max-width:1024px){.groups-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:768px){.groups-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:480px){.groups-grid{grid-template-columns:1fr;}}
+    .group-card{background:var(--card);border-radius:12px;overflow:hidden;transition:transform .2s,box-shadow .2s;border-top:3px solid var(--cc,#555);}
+    .group-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.45);}
+    .group-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .group-letter{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.9rem;line-height:1;}
+    .brazil-badge{font-family:"Bebas Neue",Impact,sans-serif;font-size:.6rem;background:var(--green);color:#000;padding:2px 6px;border-radius:4px;letter-spacing:.5px;white-space:nowrap;}
+    .standings-table{width:100%;border-collapse:collapse;}
+    .standings-table th{font-size:.6rem;color:var(--muted);padding:4px 8px;text-align:center;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+    .standings-table th:nth-child(2),.standings-table td:nth-child(2){text-align:left;}
+    .standings-table td{padding:5px 8px;text-align:center;font-size:.82rem;}
+    .standings-table tbody tr:not(.sep-row):not(:last-child) td{border-bottom:1px solid rgba(255,255,255,.04);}
+    .classified-sep{font-size:.55rem;color:var(--gold);text-align:center;letter-spacing:2px;border-top:1px dashed rgba(255,215,0,.3);border-bottom:1px dashed rgba(255,215,0,.3);padding:2px 0;}
+    .t-cell{display:flex;align-items:center;gap:5px;}
+    .t-rank{font-size:.6rem;color:var(--muted);min-width:14px;}
+    .toggle-btn{width:100%;font-family:"Bebas Neue",Impact,sans-serif;font-size:.82rem;letter-spacing:1px;color:var(--muted);background:rgba(255,255,255,.025);border:none;border-top:1px solid rgba(255,255,255,.05);padding:9px;cursor:pointer;transition:all .2s;}
+    .toggle-btn:hover{color:#fff;background:rgba(255,255,255,.05);}
+    .match-list{padding:6px 12px 8px;border-top:1px solid rgba(255,255,255,.04);}
+    .match-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.03);}
+    .match-row:last-child{border-bottom:none;}
+    .mt{display:flex;align-items:center;gap:4px;flex:1;}
+    .mt.away{justify-content:flex-end;flex-direction:row-reverse;}
+    .ms{font-family:"Bebas Neue",Impact,sans-serif;font-size:1rem;min-width:46px;text-align:center;color:var(--gold);}
+    .ms.pnd{color:var(--muted);font-size:.8rem;}
+    .groups-bar{display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding:14px 16px;background:var(--surface);border-radius:12px;gap:12px;flex-wrap:wrap;}
+    .game-ctr{font-family:"Bebas Neue",Impact,sans-serif;font-size:1rem;color:var(--cyan);}
+    /* === Calendar === */
+    .cal-hdr{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.15rem;color:var(--gold);letter-spacing:2px;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid rgba(255,215,0,.2);}
+    .cal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    @media(max-width:1024px){.cal-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:600px){.cal-grid{grid-template-columns:1fr;}}
+    .cal-card{background:var(--card);border-radius:10px;padding:14px;border-left:3px solid var(--c,#666);transition:transform .2s,box-shadow .2s;}
+    .cal-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.35);}
+    .cal-card.brazil{box-shadow:0 0 18px rgba(0,200,81,.22);border-left-color:var(--green) !important;}
+    .cal-lbl{font-size:.6rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+    .cal-teams{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+    .cal-team{display:flex;align-items:center;gap:5px;font-weight:600;font-size:.88rem;}
+    .cal-vs{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.1rem;color:var(--gold);}
+    .cal-score{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.3rem;color:var(--gold);}
+    .cal-venue{font-size:.68rem;color:var(--muted);margin-top:8px;}
+    /* === Bracket === */
+    .b-empty{text-align:center;padding:80px 20px;color:var(--muted);}
+    .b-empty .ico{font-size:3.5rem;display:block;margin-bottom:16px;}
+    .b-empty h2{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.5rem;color:#fff;margin-bottom:8px;}
+    .b-empty p{font-size:.9rem;max-width:380px;margin:0 auto 20px;line-height:1.6;}
+    .champ-card{background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,215,0,.03));border:1px solid var(--gold);border-radius:14px;padding:24px;text-align:center;margin-bottom:24px;}
+    .champ-lbl{font-family:"Bebas Neue",Impact,sans-serif;font-size:.85rem;color:var(--gold);letter-spacing:3px;margin-bottom:6px;}
+    .champ-name{font-family:"Bebas Neue",Impact,sans-serif;font-size:2.4rem;color:var(--gold);}
+    .b-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+    .b-scroll{overflow-x:auto;padding-bottom:12px;}
+    .b-phases{display:flex;gap:20px;min-width:max-content;padding:8px 0;}
+    .b-phase{display:flex;flex-direction:column;gap:6px;min-width:170px;}
+    .b-phase-title{font-family:"Bebas Neue",Impact,sans-serif;font-size:.85rem;color:var(--cyan);letter-spacing:2px;text-align:center;margin-bottom:8px;}
+    .b-match{background:var(--card);border-radius:8px;padding:8px 12px;border:1px solid rgba(255,255,255,.06);margin-bottom:6px;}
+    .b-team{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.78rem;font-weight:600;}
+    .b-team.winner{color:var(--gold);}
+    .b-team.tbd{color:var(--muted);font-style:italic;}
+    .b-sep{border:none;border-top:1px solid rgba(255,255,255,.06);margin:2px 0;}
+    /* === Simulation === */
+    .sim-hdr{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+    .sim-sel{font-family:"Rajdhani",Arial,sans-serif;font-size:.88rem;background:var(--surface);color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;cursor:pointer;outline:none;}
+    .sim-sel:focus{border-color:var(--gold);}
+    .prog-wrap{background:var(--surface);border-radius:10px;padding:12px 16px;margin-bottom:16px;}
+    .prog-info{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:6px;}
+    .prog-track{background:rgba(255,255,255,.06);border-radius:100px;height:6px;overflow:hidden;}
+    .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--cyan));border-radius:100px;transition:width .4s ease;}
+    .sim-list{display:flex;flex-direction:column;gap:8px;}
+    .sim-row{background:var(--card);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.04);transition:border-color .2s;}
+    .sim-row.done{border-color:rgba(255,215,0,.14);}
+    .sim-row.draw{border-color:rgba(0,229,255,.14);}
+    .sim-t{display:flex;align-items:center;gap:7px;flex:1;}
+    .sim-t.away{justify-content:flex-end;flex-direction:row-reverse;}
+    .sim-tn{font-weight:600;font-size:.85rem;}
+    .sim-tn.win{color:var(--gold);}
+    .sim-tn.lose{color:var(--muted);}
+    .sim-mid{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:130px;}
+    .sim-lbl{font-size:.58rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+    .sim-inp{display:flex;align-items:center;gap:5px;}
+    .sc{width:46px;height:38px;font-family:"Bebas Neue",Impact,sans-serif;font-size:1.35rem;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;outline:none;transition:border-color .2s;}
+    .sc:focus{border-color:var(--gold);}
+    .sc-sep{font-family:"Bebas Neue",Impact,sans-serif;font-size:1.1rem;color:var(--muted);}
+    .sim-acts{display:flex;gap:5px;}
+    .btn-ok{font-family:"Bebas Neue",Impact,sans-serif;font-size:.82rem;padding:7px 13px;border:none;border-radius:6px;cursor:pointer;background:var(--green);color:#000;transition:all .2s;letter-spacing:1px;}
+    .btn-ok:hover{filter:brightness(1.1);}
+    .btn-x{font-family:"Bebas Neue",Impact,sans-serif;font-size:.82rem;padding:7px 10px;border:none;border-radius:6px;cursor:pointer;background:rgba(255,68,68,.15);color:var(--red);transition:all .2s;letter-spacing:1px;}
+    .btn-x:hover{background:rgba(255,68,68,.25);}
+    @media(max-width:600px){.sim-row{flex-wrap:wrap;}.sim-mid{min-width:100px;}.sim-tn{font-size:.72rem;}.sc{width:40px;height:34px;font-size:1.1rem;}}
+    ::-webkit-scrollbar{width:5px;height:5px;}
+    ::-webkit-scrollbar-track{background:var(--bg);}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
   </style>
 </head>
 <body>
-<div id="root"></div>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<div id="root">
+  <header id="header">
+    <div class="header-top">
+      <div class="logo">&#9917; COPA 2026</div>
+      <div class="header-info">
+        <div class="header-sub">FIFA World Cup &middot; Canad&aacute; &middot; M&eacute;xico &middot; EUA &middot; 2026</div>
+        <div class="header-badges">
+          <span class="badge">48 SELE&Ccedil;&Otilde;ES</span>
+          <span class="badge">104 JOGOS</span>
+        </div>
+      </div>
+    </div>
+    <nav class="nav-tabs" id="nav">
+      <button class="nav-tab" data-tab="groups">&#9917; GRUPOS</button>
+      <button class="nav-tab" data-tab="calendar">&#128197; CALEND&Aacute;RIO</button>
+      <button class="nav-tab" data-tab="bracket">&#127942; CHAVEAMENTO</button>
+      <button class="nav-tab" data-tab="simulation">&#127918; SIMULA&Ccedil;&Atilde;O</button>
+    </nav>
+  </header>
+  <main id="app"></main>
+</div>
 <script>
-'use strict';
-const { useState, useMemo, useCallback } = React;
-
-/* ================================================================
-   DATA
-   ================================================================ */
-
-const GROUP_COLORS = {
-  A:'#FF6B35', B:'#4ECDC4', C:'#00C851', D:'#FF6584',
-  E:'#A855F7', F:'#06B6D4', G:'#F59E0B', H:'#EC4899',
-  I:'#8B5CF6', J:'#10B981', K:'#F97316', L:'#6366F1'
-};
-
+// ============================================================
+// DATA — 12 Groups / 48 teams
+// ============================================================
 const GROUPS = {
-  A:{ teams:[
-    {name:'México',         flag:'🇲🇽', ranking:9 },
-    {name:'África do Sul',  flag:'🇿🇦', ranking:61},
-    {name:'Coreia do Sul',  flag:'🇰🇷', ranking:22},
-    {name:'Rep. Tcheca',    flag:'🇨🇿', ranking:38},
-  ]},
-  B:{ teams:[
-    {name:'Canadá',   flag:'🇨🇦', ranking:47},
-    {name:'Bósnia',   flag:'🇧🇦', ranking:65},
-    {name:'Catar',    flag:'🇶🇦', ranking:56},
-    {name:'Suíça',    flag:'🇨🇭', ranking:19},
-  ]},
-  C:{ teams:[
-    {name:'Brasil',   flag:'🇧🇷', ranking:5,  brazil:true},
-    {name:'Marrocos', flag:'🇲🇦', ranking:13},
-    {name:'Haiti',    flag:'🇭🇹', ranking:83},
-    {name:'Escócia',  flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', ranking:33},
-  ]},
-  D:{ teams:[
-    {name:'EUA',       flag:'🇺🇸', ranking:11},
-    {name:'Paraguai',  flag:'🇵🇾', ranking:64},
-    {name:'Austrália', flag:'🇦🇺', ranking:23},
-    {name:'Turquia',   flag:'🇹🇷', ranking:31},
-  ]},
-  E:{ teams:[
-    {name:'Alemanha',         flag:'🇩🇪', ranking:16},
-    {name:'Curaçao',          flag:'🇨🇼', ranking:85},
-    {name:'Costa do Marfim',  flag:'🇨🇮', ranking:53},
-    {name:'Equador',          flag:'🇪🇨', ranking:44},
-  ]},
-  F:{ teams:[
-    {name:'Holanda',  flag:'🇳🇱', ranking:7 },
-    {name:'Japão',    flag:'🇯🇵', ranking:18},
-    {name:'Suécia',   flag:'🇸🇪', ranking:25},
-    {name:'Tunísia',  flag:'🇹🇳', ranking:34},
-  ]},
-  G:{ teams:[
-    {name:'Bélgica',       flag:'🇧🇪', ranking:3 },
-    {name:'Egito',         flag:'🇪🇬', ranking:40},
-    {name:'Irã',           flag:'🇮🇷', ranking:20},
-    {name:'Nova Zelândia', flag:'🇳🇿', ranking:91},
-  ]},
-  H:{ teams:[
-    {name:'Espanha',        flag:'🇪🇸', ranking:8 },
-    {name:'Cabo Verde',     flag:'🇨🇻', ranking:72},
-    {name:'Arábia Saudita', flag:'🇸🇦', ranking:56},
-    {name:'Uruguai',        flag:'🇺🇾', ranking:15},
-  ]},
-  I:{ teams:[
-    {name:'França',   flag:'🇫🇷', ranking:2 },
-    {name:'Senegal',  flag:'🇸🇳', ranking:17},
-    {name:'Iraque',   flag:'🇮🇶', ranking:58},
-    {name:'Noruega',  flag:'🇳🇴', ranking:26},
-  ]},
-  J:{ teams:[
-    {name:'Argentina', flag:'🇦🇷', ranking:1 },
-    {name:'Argélia',   flag:'🇩🇿', ranking:36},
-    {name:'Áustria',   flag:'🇦🇹', ranking:30},
-    {name:'Jordânia',  flag:'🇯🇴', ranking:74},
-  ]},
-  K:{ teams:[
-    {name:'Portugal',    flag:'🇵🇹', ranking:6 },
-    {name:'RD Congo',    flag:'🇨🇩', ranking:55},
-    {name:'Uzbequistão', flag:'🇺🇿', ranking:80},
-    {name:'Colômbia',    flag:'🇨🇴', ranking:12},
-  ]},
-  L:{ teams:[
-    {name:'Inglaterra', flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', ranking:4 },
-    {name:'Croácia',    flag:'🇭🇷', ranking:10},
-    {name:'Gana',       flag:'🇬🇭', ranking:66},
-    {name:'Panamá',     flag:'🇵🇦', ranking:49},
-  ]},
+  A:{color:"#FF6B35",teams:[{name:"México",flag:"🇲🇽",rank:9},{name:"África do Sul",flag:"🇿🇦",rank:61},{name:"Coreia do Sul",flag:"🇰🇷",rank:22},{name:"Rep. Tcheca",flag:"🇨🇿",rank:38}]},
+  B:{color:"#4ECDC4",teams:[{name:"Canadá",flag:"🇨🇦",rank:47},{name:"Bósnia",flag:"🇧🇦",rank:65},{name:"Catar",flag:"🇶🇦",rank:56},{name:"Suíça",flag:"🇨🇭",rank:19}]},
+  C:{color:"#00C851",brazil:true,teams:[{name:"Brasil",flag:"🇧🇷",rank:5},{name:"Marrocos",flag:"🇲🇦",rank:13},{name:"Haiti",flag:"🇭🇹",rank:83},{name:"Escócia",flag:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",rank:33}]},
+  D:{color:"#FF6584",teams:[{name:"EUA",flag:"🇺🇸",rank:11},{name:"Paraguai",flag:"🇵🇾",rank:64},{name:"Austrália",flag:"🇦🇺",rank:23},{name:"Turquia",flag:"🇹🇷",rank:31}]},
+  E:{color:"#A855F7",teams:[{name:"Alemanha",flag:"🇩🇪",rank:16},{name:"Curaçao",flag:"🇨🇼",rank:85},{name:"Costa do Marfim",flag:"🇨🇮",rank:53},{name:"Equador",flag:"🇪🇨",rank:44}]},
+  F:{color:"#06B6D4",teams:[{name:"Holanda",flag:"🇳🇱",rank:7},{name:"Japão",flag:"🇯🇵",rank:18},{name:"Suécia",flag:"🇸🇪",rank:25},{name:"Tunísia",flag:"🇹🇳",rank:34}]},
+  G:{color:"#F59E0B",teams:[{name:"Bélgica",flag:"🇧🇪",rank:3},{name:"Egito",flag:"🇪🇬",rank:40},{name:"Irã",flag:"🇮🇷",rank:20},{name:"Nova Zelândia",flag:"🇳🇿",rank:91}]},
+  H:{color:"#EC4899",teams:[{name:"Espanha",flag:"🇪🇸",rank:8},{name:"Cabo Verde",flag:"🇨🇻",rank:72},{name:"Arábia Saudita",flag:"🇸🇦",rank:56},{name:"Uruguai",flag:"🇺🇾",rank:15}]},
+  I:{color:"#8B5CF6",teams:[{name:"França",flag:"🇫🇷",rank:2},{name:"Senegal",flag:"🇸🇳",rank:17},{name:"Iraque",flag:"🇮🇶",rank:58},{name:"Noruega",flag:"🇳🇴",rank:26}]},
+  J:{color:"#10B981",teams:[{name:"Argentina",flag:"🇦🇷",rank:1},{name:"Argélia",flag:"🇩🇿",rank:36},{name:"Áustria",flag:"🇦🇹",rank:30},{name:"Jordânia",flag:"🇯🇴",rank:74}]},
+  K:{color:"#F97316",teams:[{name:"Portugal",flag:"🇵🇹",rank:6},{name:"RD Congo",flag:"🇨🇩",rank:55},{name:"Uzbequistão",flag:"🇺🇿",rank:80},{name:"Colômbia",flag:"🇨🇴",rank:12}]},
+  L:{color:"#6366F1",teams:[{name:"Inglaterra",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",rank:4},{name:"Croácia",flag:"🇭🇷",rank:10},{name:"Gana",flag:"🇬🇭",rank:66},{name:"Panamá",flag:"🇵🇦",rank:49}]}
 };
 
-// Brazil-specific venue overrides  (group C round-robin order: R1=C-0, R2=C-2, R3=C-4)
-const BRAZIL_VENUES = {
-  'C-0': 'MetLife Stadium, NJ',
-  'C-2': 'Lincoln Financial Field, Filadelfia',
-  'C-4': 'A confirmar',
+// ============================================================
+// GAME GENERATION — 6 round-robin games per group (72 total)
+// ============================================================
+// Pairing: [homeIdx, awayIdx, round]
+const ROUND_PAIRS = [[0,1,1],[2,3,1],[0,2,2],[1,3,2],[0,3,3],[1,2,3]];
+
+// Dates indexed by group letter, then round (0=R1, 1=R2, 2=R3)
+const GDATES = {
+  A:["Jun 11","Jun 16","Jun 23"], B:["Jun 12","Jun 17","Jun 24"],
+  C:["Jun 13","Jun 19","Jun 24"], D:["Jun 14","Jun 18","Jun 25"],
+  E:["Jun 12","Jun 16","Jun 24"], F:["Jun 13","Jun 17","Jun 25"],
+  G:["Jun 13","Jun 18","Jun 26"], H:["Jun 14","Jun 19","Jun 26"],
+  I:["Jun 13","Jun 17","Jun 23"], J:["Jun 14","Jun 18","Jun 24"],
+  K:["Jun 14","Jun 19","Jun 25"], L:["Jun 15","Jun 20","Jun 27"]
+};
+const VENUES = [
+  "MetLife Stadium, NJ","AT&T Stadium, Dallas","SoFi Stadium, Los Angeles",
+  "Levi's Stadium, San Francisco","Hard Rock Stadium, Miami",
+  "Lincoln Financial Field, Filadelfia","Gillette Stadium, Boston",
+  "Empower Field, Denver","NRG Stadium, Houston","Arrowhead Stadium, Kansas City",
+  "Estadio Azteca, Cidade do México","Estadio BBVA, Monterrey","BC Place, Vancouver"
+];
+const TIMES = ["13:00","16:00","19:00","22:00"];
+
+// Generate all 72 group-stage games
+const GAMES = (() => {
+  const g = {};
+  Object.entries(GROUPS).forEach(([gk, gd]) => {
+    ROUND_PAIRS.forEach(([hi, ai, rnd], mi) => {
+      const id = gk + "-" + (mi + 1);
+      const vi = (gk.charCodeAt(0) - 65 + mi * 3) % VENUES.length;
+      g[id] = { id, group:gk, round:rnd, home:gd.teams[hi], away:gd.teams[ai],
+                homeIdx:hi, awayIdx:ai, date:GDATES[gk][rnd-1], venue:VENUES[vi], time:TIMES[mi%4] };
+    });
+  });
+  // Special Brazil games (Group C, team[0] = Brasil)
+  Object.assign(g["C-1"], { date:"Jun 13", venue:"MetLife Stadium, NJ", time:"16:00" });
+  Object.assign(g["C-3"], { date:"Jun 19", venue:"Lincoln Financial Field, Filadelfia", time:"13:00" });
+  Object.assign(g["C-5"], { date:"Jun 24", venue:"A confirmar", time:"TBD" });
+  return g;
+})();
+
+// ============================================================
+// APPLICATION STATE
+// ============================================================
+const state = {
+  activeTab: "groups",
+  results: {},              // { "A-1": {home:2,away:1}, ... }
+  expandedGroups: new Set(), // groups showing match list
+  simFilter: { status:"all", group:"all" },
+  bracket: null             // null or full bracket after simulation
 };
 
-// Round-date mapping: index 0-11 maps to group A-L
-const ROUND1_DATES = ['Jun 11','Jun 11','Jun 13','Jun 12','Jun 13','Jun 13','Jun 14','Jun 14','Jun 11','Jun 12','Jun 13','Jun 14'];
-const ROUND2_DATES = ['Jun 15','Jun 15','Jun 19','Jun 16','Jun 17','Jun 17','Jun 18','Jun 18','Jun 19','Jun 16','Jun 17','Jun 18'];
-const ROUND3_DATES = ['Jun 23','Jun 23','Jun 24','Jun 24','Jun 25','Jun 25','Jun 26','Jun 26','Jun 23','Jun 24','Jun 25','Jun 26'];
+// ============================================================
+// BUSINESS LOGIC
+// ============================================================
 
-function buildGames() {
-  const games = [];
-  const letters = Object.keys(GROUPS);
-  letters.forEach((g, gi) => {
-    // Round 1: 0v1, 2v3
-    games.push({id:`${g}-0`, group:g, round:1, date:ROUND1_DATES[gi], tA:0, tB:1});
-    games.push({id:`${g}-1`, group:g, round:1, date:ROUND1_DATES[gi], tA:2, tB:3});
-    // Round 2: 0v2, 1v3
-    games.push({id:`${g}-2`, group:g, round:2, date:ROUND2_DATES[gi], tA:0, tB:2});
-    games.push({id:`${g}-3`, group:g, round:2, date:ROUND2_DATES[gi], tA:1, tB:3});
-    // Round 3: 0v3, 1v2
-    games.push({id:`${g}-4`, group:g, round:3, date:ROUND3_DATES[gi], tA:0, tB:3});
-    games.push({id:`${g}-5`, group:g, round:3, date:ROUND3_DATES[gi], tA:1, tB:2});
-  });
-  return games;
-}
-const ALL_GAMES = buildGames();
-
-/* ================================================================
-   UTILITIES
-   ================================================================ */
-
-// Simulation constants (RN02)
-const SIM_BASE_GOALS    = 2.6;   // Average total goals per match
-const SIM_RAND_MULT     = 1.4;   // Randomness multiplier
-const SIM_STRENGTH_BONUS = 1.5;  // Extra goals awarded to the stronger side
-
-function autoSim(tA, tB) {
-  const fA = Math.max(1, 101 - tA.ranking);
-  const fB = Math.max(1, 101 - tB.ranking);
-  const prob = fA / (fA + fB);
-  const h = Math.round(Math.random() * SIM_RAND_MULT * SIM_BASE_GOALS / 2 + (Math.random() < prob      ? Math.random() * SIM_STRENGTH_BONUS : 0));
-  const a = Math.round(Math.random() * SIM_RAND_MULT * SIM_BASE_GOALS / 2 + (Math.random() < (1-prob) ? Math.random() * SIM_STRENGTH_BONUS : 0));
-  return {home: h, away: a};
-}
-
-function calcStandings(group, results) {
-  const teams = GROUPS[group].teams;
-  const st = teams.map((t, i) => ({idx:i, team:t, pts:0, j:0, gf:0, ga:0, sg:0}));
-  ALL_GAMES.filter(g => g.group === group).forEach(game => {
-    const r = results[game.id];
-    if (!r || r.home === '' || r.away === '') return;
-    const h = Number(r.home), a = Number(r.away);
-    if (isNaN(h) || isNaN(a)) return;
-    const sA = st[game.tA], sB = st[game.tB];
-    sA.j++; sB.j++;
-    sA.gf += h; sA.ga += a; sA.sg += h - a;
-    sB.gf += a; sB.ga += h; sB.sg += a - h;
-    if (h > a)      { sA.pts += 3; }
-    else if (h < a) { sB.pts += 3; }
-    else            { sA.pts += 1; sB.pts += 1; }
-  });
-  return st.sort((x, y) => y.pts - x.pts || y.sg - x.sg || y.gf - x.gf);
-}
-
-function simKO(tA, tB) {
-  if (!tA || !tB) return null;
-  const fA = Math.max(1, 101 - (tA.ranking || 50));
-  const fB = Math.max(1, 101 - (tB.ranking || 50));
-  const prob = fA / (fA + fB);
-  let sA = Math.round(Math.random() * 2.6);
-  let sB = Math.round(Math.random() * 2.6);
-  // RN05: draws in knockout resolved by penalty shootout (50/50 weighted by strength)
-  if (sA === sB) { if (Math.random() < prob) sA++; else sB++; }
-  return {sA, sB, winner: sA > sB ? tA : tB};
-}
-
-function buildBracket(results) {
-  const letters = Object.keys(GROUPS);
-  const allDone = letters.every(g =>
-    ALL_GAMES.filter(x => x.group === g).every(x => {
-      const r = results[x.id];
-      return r && r.home !== '' && r.away !== '';
-    })
+/** RN01 — Compute standings for one group from current results */
+function calcStandings(gk) {
+  const teams = GROUPS[gk].teams.map((t, i) =>
+    Object.assign({}, t, {idx:i, j:0, v:0, e:0, d:0, gf:0, gc:0, pts:0, sg:0})
   );
-  if (!allDone) return null;
-
-  const standings = {};
-  letters.forEach(g => { standings[g] = calcStandings(g, results); });
-
-  // Collect thirds, rank by pts > sg > gf
-  // Collect thirds (all groups guaranteed to have 4 teams → index 2 always exists)
-  const thirds = letters.map(g => ({...standings[g][2], group: g}))
-    .sort((a, b) => b.pts - a.pts || b.sg - a.sg || b.gf - a.gf);
-  const best8 = thirds.slice(0, 8);
-
-  // R32 pairings: 1st[A-F] vs 2nd[G-L], 1st[G-L] vs 2nd[A-F]  => 12 matches
-  //               thirds[0-3] vs thirds[4-7]                     =>  4 matches
-  //               Total = 16 matches
-  const r32 = [];
-  const firstHalf  = letters.slice(0, 6);  // A-F
-  const secondHalf = letters.slice(6, 12); // G-L
-  firstHalf.forEach((g1, i) => {
-    const g2 = secondHalf[i];
-    r32.push({tA:{...standings[g1][0].team, group:g1}, tB:{...standings[g2][1].team, group:g2}});
-  });
-  secondHalf.forEach((g1, i) => {
-    const g2 = firstHalf[i];
-    r32.push({tA:{...standings[g1][0].team, group:g1}, tB:{...standings[g2][1].team, group:g2}});
-  });
-  for (let i = 0; i < 4; i++) {
-    r32.push({tA: best8[i].team, tB: best8[i+4].team});
+  for (let mi = 1; mi <= 6; mi++) {
+    const res = state.results[gk + "-" + mi];
+    if (!res) continue;
+    const gm = GAMES[gk + "-" + mi];
+    const ht = teams[gm.homeIdx], at = teams[gm.awayIdx];
+    const h = res.home, a = res.away;
+    ht.j++; at.j++;
+    ht.gf += h; ht.gc += a; ht.sg += h - a;
+    at.gf += a; at.gc += h; at.sg += a - h;
+    if (h > a)      { ht.v++; ht.pts += 3; at.d++; }
+    else if (h < a) { at.v++; at.pts += 3; ht.d++; }
+    else            { ht.e++; at.e++; ht.pts++; at.pts++; }
   }
-
-  const r32r = r32.map(m => simKO(m.tA, m.tB));
-
-  // R16: winners of r32[0-1] play, r32[2-3], etc.
-  const r16 = [];
-  for (let i = 0; i < 16; i += 2) {
-    r16.push({tA: r32r[i]?.winner, tB: r32r[i+1]?.winner});
-  }
-  const r16r = r16.map(m => simKO(m.tA, m.tB));
-
-  // QF
-  const qf = [];
-  for (let i = 0; i < 8; i += 2) {
-    qf.push({tA: r16r[i]?.winner, tB: r16r[i+1]?.winner});
-  }
-  const qfr = qf.map(m => simKO(m.tA, m.tB));
-
-  // SF
-  const sf = [];
-  for (let i = 0; i < 4; i += 2) {
-    sf.push({tA: qfr[i]?.winner, tB: qfr[i+1]?.winner});
-  }
-  const sfr = sf.map(m => simKO(m.tA, m.tB));
-
-  // 3rd place: losers of SF
-  const l1 = sfr[0] ? (sfr[0].sA > sfr[0].sB ? sf[0].tB : sf[0].tA) : null;
-  const l2 = sfr[1] ? (sfr[1].sA > sfr[1].sB ? sf[1].tB : sf[1].tA) : null;
-  const tpr = simKO(l1, l2);
-
-  // Final
-  const fr = simKO(sfr[0]?.winner, sfr[1]?.winner);
-
-  return {
-    r32:  r32.map((m,i)  => ({...m, r: r32r[i]})),
-    r16:  r16.map((m,i)  => ({...m, r: r16r[i]})),
-    qf:   qf.map((m,i)   => ({...m, r: qfr[i]})),
-    sf:   sf.map((m,i)   => ({...m, r: sfr[i]})),
-    tp:   {tA: l1, tB: l2, r: tpr},
-    fin:  {tA: sfr[0]?.winner, tB: sfr[1]?.winner, r: fr},
-    champ: fr?.winner,
-  };
+  teams.sort((a, b) => (b.pts - a.pts) || (b.sg - a.sg) || (b.gf - a.gf));
+  return teams;
 }
 
-/* ================================================================
-   COMPONENTS
-   ================================================================ */
-
-// ---- Header ----
-function Header({tab, setTab}) {
-  const tabs = [
-    {id:'groups',     icon:'⚽', label:'Grupos'},
-    {id:'calendar',   icon:'📅', label:'Calendário'},
-    {id:'bracket',    icon:'🏆', label:'Chaveamento'},
-    {id:'simulation', icon:'🎮', label:'Simulação'},
-  ];
-  return React.createElement('header', {className:'header'},
-    React.createElement('div', {className:'header-inner'},
-      React.createElement('div', {className:'logo'}, '⚽ COPA 2026'),
-      React.createElement('div', {className:'header-badges'},
-        React.createElement('span', {className:'badge'}, '48 SELEÇÕES'),
-        React.createElement('span', {className:'badge'}, '104 JOGOS'),
-      ),
-      React.createElement('nav', {className:'nav'},
-        tabs.map(t =>
-          React.createElement('button', {
-            key:t.id,
-            className:`nav-btn${tab===t.id?' active':''}`,
-            onClick:()=>setTab(t.id),
-          }, `${t.icon} ${t.label}`)
-        )
-      )
-    )
-  );
+/** RN02 — Auto-simulate one game using FIFA ranking weights */
+function simGame(homeRank, awayRank) {
+  const fh = Math.max(1, 101 - homeRank), fa = Math.max(1, 101 - awayRank);
+  const ph = fh / (fh + fa), mg = 2.6;
+  const gh = Math.round(Math.random() * 1.4 * mg / 2 + (Math.random() < ph ? Math.random() * 1.5 : 0));
+  const ga = Math.round(Math.random() * 1.4 * mg / 2 + (Math.random() < (1-ph) ? Math.random() * 1.5 : 0));
+  return { home: gh, away: ga };
 }
 
-// ---- Group Card ----
-function GroupCard({group, gIdx, results, isOpen, onToggle}) {
-  const color   = GROUP_COLORS[group];
-  const teams   = GROUPS[group].teams;
-  const hasBR   = teams.some(t => t.brazil);
-  const st      = useMemo(() => calcStandings(group, results), [group, results]);
-  const gGames  = ALL_GAMES.filter(g => g.group === group);
+// Auto-simulate all 72 group games (skips already-set results)
+function autoSimAll() {
+  Object.values(GAMES).forEach(g => {
+    if (!state.results[g.id]) state.results[g.id] = simGame(g.home.rank, g.away.rank);
+  });
+}
 
-  return React.createElement('div', {
-    className:'group-card',
-    style:{
-      borderTop:`3px solid ${color}`,
-      animationDelay:`${gIdx*55}ms`,
-      ...(hasBR ? {boxShadow:`0 0 22px rgba(0,200,81,0.18)`} : {}),
+// Clear all results and bracket
+function clearAll() { state.results = {}; state.bracket = null; }
+
+// Count completed group games
+function doneCount() { return Object.keys(state.results).length; }
+
+/** RN01/RN03 — Get qualified teams: top-2 per group + best 8 thirds */
+function getQualified() {
+  const firsts = {}, seconds = {}, thirds = [];
+  Object.keys(GROUPS).forEach(gk => {
+    const s = calcStandings(gk);
+    firsts[gk]  = Object.assign({}, s[0], { pos:"1", group:gk });
+    seconds[gk] = Object.assign({}, s[1], { pos:"2", group:gk });
+    if (s[2]) thirds.push(Object.assign({}, s[2], { pos:"3", group:gk }));
+  });
+  // RN03: sort thirds by pts, sg, gf
+  thirds.sort((a, b) => (b.pts - a.pts) || (b.sg - a.sg) || (b.gf - a.gf));
+  return { firsts, seconds, best8: thirds.slice(0, 8) };
+}
+
+/** RN04 — Fixed R32 bracket (no same-group clashes) */
+const R32_PAIRS = [
+  ["1A","2H"],["1B","2I"],["1C","2J"],["1D","2K"],
+  ["1E","2L"],["1F","2G"],["1G","2F"],["1H","2E"],
+  ["1I","2D"],["1J","2C"],["1K","2B"],["1L","2A"],
+  ["3rd1","3rd2"],["3rd3","3rd4"],["3rd5","3rd6"],["3rd7","3rd8"]
+];
+
+/** RN05 — Simulate knockout match (random winner) */
+function koSim(home, away) {
+  return { home, away, winner: Math.random() < 0.5 ? home : away };
+}
+
+/** Build and simulate full bracket */
+function buildBracket() {
+  const { firsts, seconds, best8 } = getQualified();
+  function resolve(lbl) {
+    if (lbl[0] === "1") return firsts[lbl[1]]  || { name:"TBD", flag:"", rank:50 };
+    if (lbl[0] === "2") return seconds[lbl[1]] || { name:"TBD", flag:"", rank:50 };
+    const idx = parseInt(lbl.replace("3rd","")) - 1;
+    return best8[idx] || { name:"TBD", flag:"", rank:50 };
+  }
+  const R32 = R32_PAIRS.map(([hl, al]) => koSim(resolve(hl), resolve(al)));
+  function nextRound(ms) {
+    const out = [];
+    for (let i = 0; i < ms.length; i += 2) out.push(koSim(ms[i].winner, ms[i+1].winner));
+    return out;
+  }
+  const R16 = nextRound(R32), QF = nextRound(R16), SF = nextRound(QF), FIN = nextRound(SF);
+  const l0 = SF[0].home === SF[0].winner ? SF[0].away : SF[0].home;
+  const l1 = SF[1].home === SF[1].winner ? SF[1].away : SF[1].home;
+  return { R32, R16, QF, SF, FIN, THIRD: [koSim(l0, l1)] };
+}
+
+// ============================================================
+// LOCALE HELPERS
+// ============================================================
+const PT_DAYS   = ["DOMINGO","SEGUNDA-FEIRA","TERÇA-FEIRA","QUARTA-FEIRA","QUINTA-FEIRA","SEXTA-FEIRA","SÁBADO"];
+const PT_MONTHS = ["JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO","JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"];
+const MMAP      = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+
+function fmtDate(ds) {
+  const [mon, day] = ds.split(" ");
+  const d = new Date(2026, MMAP[mon] || 5, parseInt(day));
+  return PT_DAYS[d.getDay()] + ", " + day + " DE " + PT_MONTHS[d.getMonth()];
+}
+function dateVal(ds) { const [m,d] = ds.split(" "); return (MMAP[m]||5)*100+parseInt(d); }
+
+// ============================================================
+// RENDER — Groups View
+// ============================================================
+function renderGroups() {
+  const total = doneCount();
+  const cards = Object.entries(GROUPS).map(([gk, gd]) => {
+    const s   = calcStandings(gk);
+    const exp = state.expandedGroups.has(gk);
+    // Standings rows with "CLASSIFICADOS" separator after position 2
+    const rows = s.map((t, i) => {
+      const sep = i === 2
+        ? `<tr class="sep-row"><td colspan="6"><div class="classified-sep">&#9135;&#9135; CLASSIFICADOS &#9135;&#9135;</div></td></tr>`
+        : "";
+      const sg = t.sg > 0 ? "+" + t.sg : t.sg;
+      return sep + `<tr>`
+        + `<td><span class="t-rank">${i+1}</span></td>`
+        + `<td><div class="t-cell">${t.flag} <span style="font-size:.8rem">${t.name}</span></div></td>`
+        + `<td>${t.j}</td><td><strong>${t.pts}</strong></td><td>${sg}</td><td>${t.gf}</td>`
+        + `</tr>`;
+    }).join("");
+    // Expanded match list
+    let mhtml = "";
+    if (exp) {
+      for (let mi = 1; mi <= 6; mi++) {
+        const gm  = GAMES[gk + "-" + mi];
+        const res = state.results[gm.id];
+        const sc  = res
+          ? `<span class="ms">${res.home}&ndash;${res.away}</span>`
+          : `<span class="ms pnd">vs</span>`;
+        mhtml += `<div class="match-row">`
+          + `<div class="mt">${gm.home.flag} <span>${gm.home.name}</span></div>`
+          + sc
+          + `<div class="mt away"><span>${gm.away.name}</span> ${gm.away.flag}</div>`
+          + `</div>`;
+      }
+      mhtml = `<div class="match-list">${mhtml}</div>`;
     }
-  },
-    // Card header
-    React.createElement('div', {
-      className:'group-card-header',
-      style:{background:`${color}14`}
-    },
-      React.createElement('span', {className:'group-letter', style:{color}}, `GRUPO ${group}`),
-      hasBR && React.createElement('span', {className:'brazil-badge'}, 'GRUPO C 🇧🇷'),
-    ),
-
-    // Standings
-    React.createElement('table', {className:'standings-table'},
-      React.createElement('thead', null,
-        React.createElement('tr', null,
-          React.createElement('th', null, 'POS'),
-          React.createElement('th', null, 'SELEÇÃO'),
-          React.createElement('th', null, 'J'),
-          React.createElement('th', null, 'PTS'),
-          React.createElement('th', null, 'SG'),
-          React.createElement('th', null, 'GF'),
-        )
-      ),
-      React.createElement('tbody', null,
-        st.flatMap((s, pos) => {
-          const rows = [];
-          rows.push(
-            React.createElement('tr', {
-              key:s.idx,
-              className:[pos<2?'classified':'', s.team.brazil?'brazil':''].join(' ').trim(),
-            },
-              React.createElement('td', null, pos+1),
-              React.createElement('td', null,
-                React.createElement('div', {className:'team-cell'},
-                  React.createElement('span', {className:'flag'}, s.team.flag),
-                  React.createElement('span', {className:'team-name'}, s.team.name),
-                )
-              ),
-              React.createElement('td', null, s.j),
-              React.createElement('td', {style:{color: pos<2 ? color : undefined, fontWeight:'700'}}, s.pts),
-              React.createElement('td', {style:{color: s.sg>0?'#00C851':s.sg<0?'#FF4444':undefined}}, s.sg),
-              React.createElement('td', null, s.gf),
-            )
-          );
-          // Divider after 2nd place
-          if (pos === 1) {
-            rows.push(
-              React.createElement('tr', {key:'div', className:'divider-row'},
-                React.createElement('td', {colSpan:6})
-              )
-            );
-          }
-          return rows;
-        })
-      )
-    ),
-
-    // Matches toggle
-    React.createElement('button', {
-      className:'matches-toggle',
-      onClick:()=>onToggle(group),
-    },
-      React.createElement('span', null, '📋 JOGOS DO GRUPO'),
-      React.createElement('span', null, isOpen ? '▲' : '▼'),
-    ),
-
-    // Matches panel
-    isOpen && React.createElement('div', {className:'matches-panel'},
-      gGames.map(game => {
-        const tA = teams[game.tA], tB = teams[game.tB];
-        const r  = results[game.id];
-        const ok = r && r.home !== '' && r.away !== '';
-        return React.createElement('div', {key:game.id, className:'match-row'},
-          React.createElement('div', {className:'match-team'},
-            React.createElement('span', null, tA.flag),
-            React.createElement('span', null, tA.name),
-          ),
-          React.createElement('div', {className:`match-score${ok?'':' pending'}`},
-            ok ? `${r.home} - ${r.away}` : 'VS'
-          ),
-          React.createElement('div', {className:'match-team right'},
-            React.createElement('span', null, tB.name),
-            React.createElement('span', null, tB.flag),
-          ),
-        );
-      })
-    ),
-  );
+    const bb = gd.brazil ? `<span class="brazil-badge">&#127463;&#127479; GRUPO DO BRASIL</span>` : "";
+    return `<div class="group-card fade-up" style="--cc:${gd.color}">`
+      + `<div class="group-header"><span class="group-letter" style="color:${gd.color}">GRUPO ${gk}</span>${bb}</div>`
+      + `<table class="standings-table"><thead><tr>`
+      + `<th>#</th><th>Time</th><th>J</th><th>PTS</th><th>SG</th><th>GF</th>`
+      + `</tr></thead><tbody>${rows}</tbody></table>`
+      + mhtml
+      + `<button class="toggle-btn" data-action="toggle-group" data-group="${gk}">`
+      + (exp ? "&#9660; OCULTAR JOGOS" : "&#9654; VER JOGOS (6)")
+      + `</button></div>`;
+  }).join("");
+  return `<div class="groups-grid">${cards}</div>`
+    + `<div class="groups-bar">`
+    + `<div style="display:flex;gap:10px;flex-wrap:wrap">`
+    + `<button class="btn btn-gold" data-action="auto-sim-all">&#9889; AUTO-SIMULAR TODOS</button>`
+    + `<button class="btn btn-muted" data-action="clear-all">&#128465; LIMPAR</button>`
+    + `</div><span class="game-ctr">${total}/72 jogos</span></div>`;
 }
 
-// ---- Groups View ----
-function GroupsView({results, setResults}) {
-  const [open, setOpen] = useState({});
-  const toggle = useCallback(g => setOpen(p => ({...p,[g]:!p[g]})), []);
-
-  const done = useMemo(() =>
-    Object.values(results).filter(r => r && r.home !== '' && r.away !== '').length,
-    [results]
-  );
-
-  const autoAll = useCallback(() => {
-    const nr = {...results};
-    ALL_GAMES.forEach(game => {
-      const tA = GROUPS[game.group].teams[game.tA];
-      const tB = GROUPS[game.group].teams[game.tB];
-      const r  = autoSim(tA, tB);
-      nr[game.id] = {home: r.home, away: r.away};
+// ============================================================
+// RENDER — Calendar View
+// ============================================================
+function renderCalendar() {
+  const byDate = {};
+  Object.values(GAMES).forEach(g => {
+    (byDate[g.date] = byDate[g.date] || []).push(g);
+  });
+  const dates = Object.keys(byDate).sort((a, b) => dateVal(a) - dateVal(b));
+  let html = "";
+  dates.forEach(date => {
+    html += `<div class="cal-hdr">${fmtDate(date)}</div><div class="cal-grid">`;
+    byDate[date].forEach(g => {
+      const gd   = GROUPS[g.group];
+      const res  = state.results[g.id];
+      const isBr = g.group === "C" && (g.homeIdx === 0 || g.awayIdx === 0);
+      const sc   = res
+        ? `<span class="cal-score">${res.home}&ndash;${res.away}</span>`
+        : `<span class="cal-vs">VS</span>`;
+      html += `<div class="cal-card${isBr ? " brazil" : ""}" style="--c:${gd.color}">`
+        + `<div class="cal-lbl">GRUPO ${g.group} &middot; ROD. ${g.round}</div>`
+        + `<div class="cal-teams"><div class="cal-team">${g.home.flag} <span>${g.home.name}</span></div>${sc}<div class="cal-team"><span>${g.away.name}</span> ${g.away.flag}</div></div>`
+        + `<div class="cal-venue">&#128205; ${g.venue} &nbsp;&bull;&nbsp; ${g.time}</div>`
+        + `</div>`;
     });
-    setResults(nr);
-  }, [results, setResults]);
-
-  const clearAll = useCallback(() => setResults({}), [setResults]);
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'controls-bar'},
-      React.createElement('div', {className:'controls-left'},
-        React.createElement('button', {className:'btn btn-gold', onClick:autoAll}, '⚡ AUTO-SIMULAR'),
-        React.createElement('button', {className:'btn btn-outline', onClick:clearAll}, '🗑️ LIMPAR'),
-      ),
-      React.createElement('div', {className:'counter-text'},
-        React.createElement('span', null, done), ` / 72 jogos simulados`
-      ),
-    ),
-    React.createElement('div', {className:'groups-grid'},
-      Object.keys(GROUPS).map((g, gi) =>
-        React.createElement(GroupCard, {
-          key:g, group:g, gIdx:gi,
-          results, isOpen:!!open[g], onToggle:toggle,
-        })
-      )
-    ),
-  );
+    html += "</div>";
+  });
+  return html;
 }
 
-// ---- Calendar View ----
-function CalendarView({results}) {
-  const byDate = useMemo(() => {
-    const m = {};
-    ALL_GAMES.forEach(game => {
-      if (!m[game.date]) m[game.date] = [];
-      m[game.date].push(game);
-    });
-    return m;
-  }, []);
-
-  const sortedDates = useMemo(() => {
-    const mo = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
-    return Object.keys(byDate).sort((a,b) => {
-      const [ma,da] = a.split(' ');
-      const [mb,db] = b.split(' ');
-      return mo[ma] !== mo[mb] ? mo[ma]-mo[mb] : Number(da)-Number(db);
-    });
-  }, [byDate]);
-
-  let cardIdx = 0;
-  return React.createElement('div', null,
-    React.createElement('h2', {className:'section-title'}, 'CALENDÁRIO DA ', React.createElement('span', null, 'FASE DE GRUPOS')),
-    sortedDates.map(date =>
-      React.createElement('div', {key:date},
-        React.createElement('div', {className:'date-header'}, `📅 ${date}`),
-        React.createElement('div', {className:'calendar-grid'},
-          byDate[date].map(game => {
-            const idx = cardIdx++;
-            const teams  = GROUPS[game.group].teams;
-            const tA = teams[game.tA], tB = teams[game.tB];
-            const r  = results[game.id];
-            const ok = r && r.home !== '' && r.away !== '';
-            const isBR  = tA.brazil || tB.brazil;
-            const color = GROUP_COLORS[game.group];
-            const venue = BRAZIL_VENUES[game.id];
-            return React.createElement('div', {
-              key:game.id,
-              className:`cal-card${isBR?' brazil-game':''}`,
-              style:{borderLeftColor:color, animationDelay:`${(idx%18)*35}ms`},
-            },
-              React.createElement('div', {className:'cal-label'},
-                `GRUPO ${game.group} · RODADA ${game.round}`
-              ),
-              React.createElement('div', {className:'cal-teams'},
-                React.createElement('div', {className:'cal-team'},
-                  React.createElement('div', {className:'cal-flag'}, tA.flag),
-                  React.createElement('div', {className:'cal-name'}, tA.name),
-                ),
-                React.createElement('div', {className:`cal-vs${ok?' scored':''}`},
-                  ok ? `${r.home} - ${r.away}` : 'VS'
-                ),
-                React.createElement('div', {className:'cal-team'},
-                  React.createElement('div', {className:'cal-flag'}, tB.flag),
-                  React.createElement('div', {className:'cal-name'}, tB.name),
-                ),
-              ),
-              venue && React.createElement('div', {className:'cal-venue'}, `📍 ${venue}`),
-            );
-          })
-        )
-      )
-    )
-  );
-}
-
-// ---- Bracket View ----
-function BracketView({results}) {
-  const done = Object.values(results).filter(r => r && r.home !== '' && r.away !== '').length;
-  const bracket = useMemo(() => buildBracket(results), [results]);
-
-  if (done < 72 || !bracket) {
-    return React.createElement('div', {className:'bracket-empty'},
-      React.createElement('div', {style:{fontSize:'60px', marginBottom:'14px'}}, '🏆'),
-      React.createElement('h2', null, 'CHAVEAMENTO NÃO DISPONÍVEL'),
-      React.createElement('p', null, `Simule todos os jogos da fase de grupos para ver o chaveamento.`),
-      React.createElement('p', {className:'pct'}, `${done} / 72 jogos simulados`),
-    );
+// ============================================================
+// RENDER — Bracket View
+// ============================================================
+function renderBracket() {
+  const done = doneCount();
+  if (done < 72) {
+    const pct = Math.round(done / 72 * 100);
+    return `<div class="b-empty">`
+      + `<span class="ico">&#127942;</span>`
+      + `<h2>Chaveamento Indisponível</h2>`
+      + `<p>Simule os jogos da fase de grupos para ver o chaveamento.<br>${done}/72 jogos concluídos (${pct}%).</p>`
+      + `<button class="btn btn-gold" data-action="auto-sim-all">&#9889; AUTO-SIMULAR GRUPOS</button>`
+      + `</div>`;
   }
-
-  function BTeam({team, isWin, score}) {
-    return React.createElement('div', {
-      className:`bracket-team${isWin?' winner':''}${!team?' empty':''}`,
-    },
-      React.createElement('span', {style:{fontSize:'14px'}}, team?.flag || ''),
-      React.createElement('span', {style:{flex:1, fontSize:'12px'}}, team?.name || 'A definir'),
-      score != null && React.createElement('span', {className:'bracket-score'}, score),
-    );
-  }
-
-  function BMatch({m}) {
-    if (!m) return React.createElement('div', {className:'bracket-match'},
-      React.createElement(BTeam, {team:null}),
-      React.createElement(BTeam, {team:null}),
-    );
-    const wA = m.r && m.r.sA > m.r.sB;
-    const wB = m.r && m.r.sB > m.r.sA;
-    return React.createElement('div', {className:'bracket-match'},
-      React.createElement(BTeam, {team:m.tA, isWin:wA, score:m.r?.sA}),
-      React.createElement(BTeam, {team:m.tB, isWin:wB, score:m.r?.sB}),
-    );
-  }
-
-  function Round({title, matches}) {
-    return React.createElement('div', {className:'bracket-round'},
-      React.createElement('div', {className:'round-header'}, title),
-      React.createElement('div', {className:'round-matches'},
-        matches.map((m,i) => React.createElement(BMatch, {key:i, m}))
-      )
-    );
-  }
-
-  return React.createElement('div', null,
-    bracket.champ && React.createElement('div', {className:'champion-display'},
-      React.createElement('div', {className:'champion-title'}, '🏆 CAMPEÃO MUNDIAL 2026 🏆'),
-      React.createElement('div', {className:'champion-flag'}, bracket.champ.flag),
-      React.createElement('div', {className:'champion-name'}, bracket.champ.name),
-    ),
-    React.createElement('div', {className:'bracket-container'},
-      React.createElement('div', {className:'bracket-rounds'},
-        React.createElement(Round, {title:'16-AVOS (A)',   matches: bracket.r32.slice(0,8)}),
-        React.createElement(Round, {title:'16-AVOS (B)',   matches: bracket.r32.slice(8)}),
-        React.createElement(Round, {title:'OITAVAS',       matches: bracket.r16}),
-        React.createElement(Round, {title:'QUARTAS',       matches: bracket.qf}),
-        React.createElement(Round, {title:'SEMIFINAL',     matches: bracket.sf}),
-        React.createElement(Round, {title:'FINAL / 3º LG', matches:[bracket.fin, bracket.tp]}),
-      )
-    )
-  );
-}
-
-// ---- Simulation View ----
-function SimulationView({results, setResults}) {
-  const [statusF, setStatusF] = useState('all');
-  const [groupF,  setGroupF]  = useState('all');
-  const [pending, setPending] = useState({});
-
-  const done = useMemo(() =>
-    Object.values(results).filter(r => r && r.home !== '' && r.away !== '').length,
-    [results]
-  );
-
-  const filtered = useMemo(() => ALL_GAMES.filter(game => {
-    const r  = results[game.id];
-    const ok = r && r.home !== '' && r.away !== '';
-    if (statusF==='played'  && !ok) return false;
-    if (statusF==='pending' &&  ok) return false;
-    if (groupF!=='all' && game.group !== groupF) return false;
-    return true;
-  }), [statusF, groupF, results]);
-
-  const getVal = (id, side) => {
-    const p = pending[id];
-    if (p && p[side] !== undefined) return p[side];
-    const r = results[id];
-    return r ? (r[side] ?? '') : '';
-  };
-
-  const onInput = (id, side, val) => {
-    if (!/^[0-9]*$/.test(val)) return;
-    setPending(p => ({...p, [id]:{...(p[id]||{}), [side]:val}}));
-  };
-
-  const onConfirm = id => {
-    const p = pending[id] || {};
-    const r = results[id] || {};
-    const h = p.home !== undefined ? p.home : r.home ?? '';
-    const a = p.away !== undefined ? p.away : r.away ?? '';
-    if (h !== '' && a !== '') {
-      setResults(prev => ({...prev, [id]:{home:Number(h), away:Number(a)}}));
-      setPending(prev => {const n={...prev}; delete n[id]; return n;});
+  let html = `<div class="b-bar">`;
+  html += state.bracket
+    ? `<button class="btn btn-gold" data-action="sim-bracket">&#8635; RESSIMULAR CHAVEAMENTO</button>`
+    : `<button class="btn btn-gold" data-action="sim-bracket">&#127918; SIMULAR CHAVEAMENTO</button>`;
+  html += `</div>`;
+  if (!state.bracket) {
+    // Show R32 slots filled with group results
+    const { firsts, seconds, best8 } = getQualified();
+    function res(lbl) {
+      if (lbl[0] === "1") { const t = firsts[lbl[1]];  return t ? t.flag + " " + t.name : "A definir"; }
+      if (lbl[0] === "2") { const t = seconds[lbl[1]]; return t ? t.flag + " " + t.name : "A definir"; }
+      const idx = parseInt(lbl.replace("3rd","")) - 1;
+      const t = best8[idx]; return t ? t.flag + " " + t.name : "A definir";
     }
-  };
-
-  const onDelete = id => {
-    setResults(prev => {const n={...prev}; delete n[id]; return n;});
-    setPending(prev => {const n={...prev}; delete n[id]; return n;});
-  };
-
-  const autoAll = () => {
-    const nr = {};
-    ALL_GAMES.forEach(game => {
-      const tA = GROUPS[game.group].teams[game.tA];
-      const tB = GROUPS[game.group].teams[game.tB];
-      const r  = autoSim(tA, tB);
-      nr[game.id] = {home:r.home, away:r.away};
+    html += `<div class="b-scroll"><div class="b-phases"><div class="b-phase">`;
+    html += `<div class="b-phase-title">OITAVAS (R32)</div>`;
+    R32_PAIRS.forEach(([hl, al]) => {
+      html += `<div class="b-match">`
+        + `<div class="b-team">${res(hl)}</div><hr class="b-sep">`
+        + `<div class="b-team">${res(al)}</div></div>`;
     });
-    setResults(nr);
-    setPending({});
-  };
-
-  const clearAll = () => { setResults({}); setPending({}); };
-
-  const pct = Math.round(done / 72 * 100);
-
-  return React.createElement('div', null,
-    // Controls
-    React.createElement('div', {className:'sim-controls'},
-      React.createElement('div', {className:'sim-controls-top'},
-        React.createElement('button', {className:'btn btn-gold', onClick:autoAll}, '⚡ AUTO-SIMULAR TUDO'),
-        React.createElement('button', {className:'btn btn-outline', onClick:clearAll}, '🗑️ LIMPAR TUDO'),
-      ),
-      React.createElement('div', {className:'sim-filters'},
-        React.createElement('div', {className:'filter-group'},
-          React.createElement('span', {className:'filter-label'}, 'STATUS:'),
-          React.createElement('select', {
-            className:'filter-select', value:statusF,
-            onChange:e=>setStatusF(e.target.value),
-          },
-            React.createElement('option', {value:'all'},     'Todos'),
-            React.createElement('option', {value:'played'},  'Jogados'),
-            React.createElement('option', {value:'pending'}, 'Pendentes'),
-          ),
-        ),
-        React.createElement('div', {className:'filter-group'},
-          React.createElement('span', {className:'filter-label'}, 'GRUPO:'),
-          React.createElement('select', {
-            className:'filter-select', value:groupF,
-            onChange:e=>setGroupF(e.target.value),
-          },
-            React.createElement('option', {value:'all'}, 'Todos'),
-            ...Object.keys(GROUPS).map(g =>
-              React.createElement('option', {key:g, value:g}, `Grupo ${g}`)
-            ),
-          ),
-        ),
-      ),
-      React.createElement('div', {className:'progress-bar-wrap'},
-        React.createElement('div', {className:'progress-bar', style:{width:`${pct}%`}}),
-      ),
-      React.createElement('div', {className:'progress-text'},
-        React.createElement('span', null, done),
-        ` / 72 jogos simulados (`,
-        React.createElement('span', null, `${pct}%`),
-        `)`,
-      ),
-    ),
-
-    // Game list
-    React.createElement('div', {className:'sim-list'},
-      filtered.map((game, idx) => {
-        const teams = GROUPS[game.group].teams;
-        const tA = teams[game.tA], tB = teams[game.tB];
-        const r  = results[game.id];
-        const ok = r && r.home !== '' && r.away !== '';
-        const color = GROUP_COLORS[game.group];
-        const hv = getVal(game.id, 'home');
-        const av = getVal(game.id, 'away');
-
-        let hCls = 'sim-tname', aCls = 'sim-tname';
-        if (ok) {
-          if      (r.home > r.away) { hCls += ' winner'; aCls += ' loser';  }
-          else if (r.home < r.away) { aCls += ' winner'; hCls += ' loser';  }
-          else                      { hCls += ' draw';   aCls += ' draw';   }
-        }
-
-        return React.createElement('div', {
-          key:game.id,
-          className:`sim-row${ok?' played':''}`,
-          style:{borderLeftColor:color, animationDelay:`${(idx%25)*28}ms`},
-        },
-          // Team A
-          React.createElement('div', {className:'sim-side'},
-            React.createElement('span', {style:{fontSize:'18px'}}, tA.flag),
-            React.createElement('span', {className:hCls}, tA.name),
-          ),
-          // Score inputs
-          React.createElement('div', {className:'score-area'},
-            React.createElement('input', {
-              className:'score-input', type:'text',
-              inputMode:'numeric', maxLength:2, placeholder:'-',
-              value:hv,
-              onChange:e=>onInput(game.id,'home',e.target.value),
-              onKeyDown:e=>{ if(e.key==='Enter') onConfirm(game.id); },
-            }),
-            React.createElement('span', {className:'sim-x'}, 'X'),
-            React.createElement('input', {
-              className:'score-input', type:'text',
-              inputMode:'numeric', maxLength:2, placeholder:'-',
-              value:av,
-              onChange:e=>onInput(game.id,'away',e.target.value),
-              onKeyDown:e=>{ if(e.key==='Enter') onConfirm(game.id); },
-            }),
-          ),
-          // Team B
-          React.createElement('div', {className:'sim-side right'},
-            React.createElement('span', {className:aCls}, tB.name),
-            React.createElement('span', {style:{fontSize:'18px'}}, tB.flag),
-          ),
-          // Actions
-          React.createElement('div', {className:'sim-actions'},
-            React.createElement('span', {className:'sim-meta'}, `G-${game.group} R${game.round}`),
-            React.createElement('button', {className:'btn-ok', onClick:()=>onConfirm(game.id)}, '✓'),
-            ok && React.createElement('button', {className:'btn-del', onClick:()=>onDelete(game.id)}, '✕'),
-          ),
-        );
-      })
-    ),
-  );
+    html += `</div></div></div>`;
+    return html;
+  }
+  // Full bracket with all results
+  const b   = state.bracket;
+  const ch  = b.FIN[0].winner;
+  html += `<div class="champ-card">`
+    + `<div class="champ-lbl">&#127942; CAMPEÃO</div>`
+    + `<div class="champ-name">${ch.flag} ${ch.name}</div></div>`;
+  function renderPhase(title, matches) {
+    let ph = `<div class="b-phase"><div class="b-phase-title">${title}</div>`;
+    matches.forEach(m => {
+      const hw = m.winner === m.home;
+      ph += `<div class="b-match">`
+        + `<div class="b-team${hw ? " winner" : ""}">${m.home.flag} ${m.home.name}</div>`
+        + `<hr class="b-sep">`
+        + `<div class="b-team${!hw ? " winner" : ""}">${m.away.flag} ${m.away.name}</div>`
+        + `</div>`;
+    });
+    return ph + `</div>`;
+  }
+  html += `<div class="b-scroll"><div class="b-phases">`
+    + renderPhase("OITAVAS (R32)", b.R32)
+    + renderPhase("OITAVAS-DE-FINAL", b.R16)
+    + renderPhase("QUARTAS-DE-FINAL", b.QF)
+    + renderPhase("SEMIFINAL", b.SF)
+    + renderPhase("3º LUGAR", b.THIRD)
+    + renderPhase("FINAL", b.FIN)
+    + `</div></div>`;
+  return html;
 }
 
-/* ================================================================
-   APP
-   ================================================================ */
-
-function App() {
-  const [tab,     setTab]     = useState('groups');
-  const [results, setResults] = useState({});
-
-  return React.createElement('div', null,
-    React.createElement(Header, {tab, setTab}),
-    React.createElement('main', {className:'main'},
-      tab==='groups'     && React.createElement(GroupsView,     {results, setResults}),
-      tab==='calendar'   && React.createElement(CalendarView,   {results}),
-      tab==='bracket'    && React.createElement(BracketView,    {results}),
-      tab==='simulation' && React.createElement(SimulationView, {results, setResults}),
-    ),
-  );
+// ============================================================
+// RENDER — Simulation View
+// ============================================================
+function renderSimulation() {
+  const total = doneCount();
+  const pct   = Math.round(total / 72 * 100);
+  // Filter controls
+  let html = `<div class="sim-hdr">`
+    + `<select class="sim-sel" data-filter="status">`
+    + `<option value="all"${state.simFilter.status==="all"?" selected":""}>Todos os Jogos</option>`
+    + `<option value="done"${state.simFilter.status==="done"?" selected":""}>Jogados</option>`
+    + `<option value="pending"${state.simFilter.status==="pending"?" selected":""}>Pendentes</option>`
+    + `</select>`
+    + `<select class="sim-sel" data-filter="group">`
+    + `<option value="all"${state.simFilter.group==="all"?" selected":""}>Todos os Grupos</option>`
+    + Object.keys(GROUPS).map(gk =>
+        `<option value="${gk}"${state.simFilter.group===gk?" selected":""}>Grupo ${gk}</option>`
+      ).join("")
+    + `</select>`
+    + `<button class="btn btn-gold btn-sm" data-action="auto-sim-all">&#9889; AUTO-SIMULAR</button>`
+    + `<button class="btn btn-muted btn-sm" data-action="clear-all">&#128465; LIMPAR</button>`
+    + `</div>`;
+  // Progress bar
+  html += `<div class="prog-wrap">`
+    + `<div class="prog-info"><span>${total} de 72 jogos simulados</span><span>${pct}%</span></div>`
+    + `<div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>`
+    + `</div>`;
+  // Filter + sort
+  let games = Object.values(GAMES);
+  if (state.simFilter.group !== "all")   games = games.filter(g => g.group === state.simFilter.group);
+  if (state.simFilter.status === "done")    games = games.filter(g =>  state.results[g.id]);
+  if (state.simFilter.status === "pending") games = games.filter(g => !state.results[g.id]);
+  games.sort((a, b) => dateVal(a.date) - dateVal(b.date) || a.id.localeCompare(b.id));
+  // Game rows
+  html += `<div class="sim-list">`;
+  games.forEach(g => {
+    const res    = state.results[g.id];
+    const hv     = res ? res.home : "";
+    const av     = res ? res.away : "";
+    const isDraw = res && res.home === res.away;
+    const rowCls = res ? (isDraw ? " draw" : " done") : "";
+    let hcls = "", acls = "";
+    if (res && !isDraw) {
+      hcls = res.home > res.away ? " win" : " lose";
+      acls = res.away > res.home ? " win" : " lose";
+    }
+    html += `<div class="sim-row${rowCls}">`
+      + `<div class="sim-t">`
+      + `<span style="font-size:1.2rem">${g.home.flag}</span>`
+      + `<span class="sim-tn${hcls}">${g.home.name}</span>`
+      + `</div>`
+      + `<div class="sim-mid">`
+      + `<span class="sim-lbl">GRP ${g.group} &middot; ROD.${g.round}</span>`
+      + `<div class="sim-inp">`
+      + `<input class="sc" type="number" min="0" max="20" value="${hv}" data-gid="${g.id}" data-role="h" placeholder="0">`
+      + `<span class="sc-sep">&ndash;</span>`
+      + `<input class="sc" type="number" min="0" max="20" value="${av}" data-gid="${g.id}" data-role="a" placeholder="0">`
+      + `</div></div>`
+      + `<div class="sim-t away">`
+      + `<span style="font-size:1.2rem">${g.away.flag}</span>`
+      + `<span class="sim-tn${acls}">${g.away.name}</span>`
+      + `</div>`
+      + `<div class="sim-acts">`
+      + `<button class="btn-ok" data-action="confirm" data-gid="${g.id}">&#10003; OK</button>`
+      + (res ? `<button class="btn-x" data-action="remove" data-gid="${g.id}">&#10005;</button>` : "")
+      + `</div></div>`;
+  });
+  html += `</div>`;
+  return html;
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+// ============================================================
+// MAIN RENDER
+// ============================================================
+function render() {
+  document.querySelectorAll(".nav-tab").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.tab === state.activeTab);
+  });
+  let html = `<div class="fade-up">`;
+  if      (state.activeTab === "groups")     html += renderGroups();
+  else if (state.activeTab === "calendar")   html += renderCalendar();
+  else if (state.activeTab === "bracket")    html += renderBracket();
+  else if (state.activeTab === "simulation") html += renderSimulation();
+  html += `</div>`;
+  document.getElementById("app").innerHTML = html;
+}
+
+// ============================================================
+// EVENT HANDLING — All delegated on #app and #nav
+// ============================================================
+
+/** Confirm a game: read inputs from DOM, save result, re-render */
+function confirmGame(gid) {
+  const hi = document.querySelector(`.sc[data-gid="${gid}"][data-role="h"]`);
+  const ai = document.querySelector(`.sc[data-gid="${gid}"][data-role="a"]`);
+  if (!hi || !ai) return;
+  const h = parseInt(hi.value), a = parseInt(ai.value);
+  if (isNaN(h) || isNaN(a) || h < 0 || a < 0) return;
+  state.results[gid] = { home:h, away:a };
+  state.bracket = null; // invalidate cached bracket
+  render();
+}
+
+document.getElementById("app").addEventListener("click", function(e) {
+  const t = e.target.closest("[data-action]");
+  if (!t) return;
+  const action = t.dataset.action;
+  if (action === "toggle-group") {
+    const gk = t.dataset.group;
+    state.expandedGroups.has(gk) ? state.expandedGroups.delete(gk) : state.expandedGroups.add(gk);
+    render();
+  } else if (action === "auto-sim-all") {
+    autoSimAll(); state.bracket = null; render();
+  } else if (action === "clear-all") {
+    clearAll(); render();
+  } else if (action === "confirm") {
+    confirmGame(t.dataset.gid);
+  } else if (action === "remove") {
+    delete state.results[t.dataset.gid]; state.bracket = null; render();
+  } else if (action === "sim-bracket") {
+    state.bracket = buildBracket(); render();
+  }
+});
+
+// Enter key in score input confirms the game (no focus-loss while typing)
+document.getElementById("app").addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && e.target.matches(".sc")) confirmGame(e.target.dataset.gid);
+});
+
+// Filter dropdowns
+document.getElementById("app").addEventListener("change", function(e) {
+  if (e.target.matches("[data-filter]")) {
+    state.simFilter[e.target.dataset.filter] = e.target.value;
+    render();
+  }
+});
+
+// Tab navigation
+document.getElementById("nav").addEventListener("click", function(e) {
+  const btn = e.target.closest(".nav-tab");
+  if (btn) { state.activeTab = btn.dataset.tab; render(); }
+});
+
+// ============================================================
+// INIT
+// ============================================================
+render();
 </script>
 </body>
 </html>
